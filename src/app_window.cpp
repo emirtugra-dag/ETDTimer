@@ -444,10 +444,15 @@ void AppWindow::UpdateFullscreenDetection() {
     RECT fgRect;
     GetWindowRect(fgHwnd, &fgRect);
 
-    int screenW = GetSystemMetrics(SM_CXSCREEN);
-    int screenH = GetSystemMetrics(SM_CYSCREEN);
+    HMONITOR hMon = MonitorFromWindow(fgHwnd, MONITOR_DEFAULTTONEAREST);
+    MONITORINFO mi = { sizeof(MONITORINFO) };
+    GetMonitorInfoW(hMon, &mi);
 
-    bool isFullscreen = (fgRect.left <= 0 && fgRect.top <= 0 && fgRect.right >= screenW && fgRect.bottom >= screenH);
+    // True Fullscreen: The window bounds cover or exceed the ENTIRE physical monitor (including taskbar region)
+    bool isFullscreen = (fgRect.left <= mi.rcMonitor.left && 
+                         fgRect.top <= mi.rcMonitor.top && 
+                         fgRect.right >= mi.rcMonitor.right && 
+                         fgRect.bottom >= mi.rcMonitor.bottom);
 
     if (isFullscreen && !m_isFullscreenActive) {
         m_isFullscreenActive = true;
