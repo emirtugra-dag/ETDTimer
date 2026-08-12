@@ -152,7 +152,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Settings Modal Interaction
         if (m_settingsOpen) {
-            int modalW = 300, modalH = 400;
+            int modalW = 310, modalH = 360;
             int modalX = (m_windowWidth - modalW) / 2;
             int modalY = (m_windowHeight - modalH) / 2;
 
@@ -164,43 +164,43 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 return 0;
             }
 
-            int curY = modalY + 55;
+            int curY = modalY + 45;
             AppSettings& s = SettingsManager::Instance().Get();
 
             // Language switch
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.lang = (s.lang == LANG_TR) ? LANG_EN : LANG_TR;
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Theme switch
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.theme = (s.theme == THEME_DARK) ? THEME_LIGHT : THEME_DARK;
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Show Seconds Clock
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.showSecondsInClock = !s.showSecondsInClock;
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Show Seconds Timer
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.showSecondsInTimer = !s.showSecondsInTimer;
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Force Always on Top
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.forceAlwaysOnTop = !s.forceAlwaysOnTop;
                 if (s.forceAlwaysOnTop) {
                     SetWindowPos(m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
@@ -208,27 +208,27 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Autostart
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.autoStart = !s.autoStart;
                 SettingsManager::Instance().SetAutoStart(s.autoStart);
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Restore previous tools
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 28) {
                 s.restorePreviousTools = !s.restorePreviousTools;
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 35;
+            curY += 32;
 
             // Legal notice popup
-            if (y >= curY && y <= curY + 30) {
+            if (y >= curY && y <= curY + 32) {
                 const wchar_t* legalText = (s.lang == LANG_TR) ? g_LegalDisclaimerTR : g_LegalDisclaimerEN;
                 MessageBoxW(m_hwnd, legalText, SettingsManager::Instance().Text("LEGAL_NOTICE"), MB_OK | MB_ICONINFORMATION);
                 return 0;

@@ -295,8 +295,8 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     SolidBrush overlayBrush(Color(180, 0, 0, 0));
     g.FillRectangle(&overlayBrush, 0, 0, width, height);
 
-    int modalW = 300;
-    int modalH = 440;
+    int modalW = 310;
+    int modalH = 360;
     int modalX = (width - modalW) / 2;
     int modalY = (height - modalH) / 2;
 
@@ -307,51 +307,51 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     Font titleFont(L"Segoe UI", 12, FontStyleBold, UnitPoint);
     Font bodyFont(L"Segoe UI", 9, FontStyleRegular, UnitPoint);
 
-    g.DrawString(SettingsManager::Instance().Text("SETTINGS"), -1, &titleFont, PointF((REAL)modalX + 15, (REAL)modalY + 15), m_accentBrush);
+    g.DrawString(SettingsManager::Instance().Text("SETTINGS"), -1, &titleFont, PointF((REAL)modalX + 15, (REAL)modalY + 12), m_accentBrush);
 
     // Close X
-    g.DrawString(L"✕", -1, &titleFont, PointF((REAL)modalX + modalW - 25, (REAL)modalY + 12), m_textDimBrush);
+    g.DrawString(L"✕", -1, &titleFont, PointF((REAL)modalX + modalW - 25, (REAL)modalY + 10), m_textDimBrush);
 
-    int curY = modalY + 55;
+    int curY = modalY + 45;
     AppSettings& s = SettingsManager::Instance().Get();
 
     // 1. Language Toggle
     g.DrawString(SettingsManager::Instance().Text("LANGUAGE"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.lang == LANG_TR ? L"[Türkçe]" : L"[English]", -1, &bodyFont, PointF((REAL)modalX + 180, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.lang == LANG_TR ? L"[Türkçe]" : L"[English]", -1, &bodyFont, PointF((REAL)modalX + 220, (REAL)curY), m_accentBrush);
+    curY += 32;
 
     // 2. Theme Toggle
     g.DrawString(SettingsManager::Instance().Text("THEME"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.theme == THEME_DARK ? SettingsManager::Instance().Text("THEME_DARK") : SettingsManager::Instance().Text("THEME_LIGHT"), -1, &bodyFont, PointF((REAL)modalX + 180, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.theme == THEME_DARK ? SettingsManager::Instance().Text("THEME_DARK") : SettingsManager::Instance().Text("THEME_LIGHT"), -1, &bodyFont, PointF((REAL)modalX + 220, (REAL)curY), m_accentBrush);
+    curY += 32;
 
     // 3. Show Seconds in Clock
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_CLOCK"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.showSecondsInClock ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.showSecondsInClock ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
+    curY += 32;
 
     // 4. Show Seconds in Timer
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_TIMER"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.showSecondsInTimer ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.showSecondsInTimer ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
+    curY += 32;
 
     // 5. Force Always on Top
     g.DrawString(SettingsManager::Instance().Text("FORCE_TOPMOST"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.forceAlwaysOnTop ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.forceAlwaysOnTop ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
+    curY += 32;
 
-    // 5. Autostart
+    // 6. Autostart
     g.DrawString(SettingsManager::Instance().Text("AUTOSTART"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.autoStart ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.autoStart ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
+    curY += 32;
 
-    // 6. Restore Previous Tools
+    // 7. Restore Previous Tools
     g.DrawString(SettingsManager::Instance().Text("RESTORE_TOOLS"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.restorePreviousTools ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
-    curY += 35;
+    g.DrawString(s.restorePreviousTools ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
+    curY += 32;
 
-    // 7. Legal Disclaimer Info Button
-    RectF legalBtn((REAL)modalX + 15, (REAL)curY, 270, 30);
+    // 8. Legal Disclaimer Info Button
+    RectF legalBtn((REAL)modalX + 15, (REAL)curY + 5, 280, 28);
     g.FillRectangle(m_buttonBrush, legalBtn); g.DrawRectangle(m_borderPen, legalBtn);
-    g.DrawString(SettingsManager::Instance().Text("LEGAL_NOTICE"), -1, &bodyFont, PointF((REAL)modalX + 90, (REAL)curY + 7), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("LEGAL_NOTICE"), -1, &bodyFont, PointF((REAL)modalX + 95, (REAL)curY + 10), m_textBrush);
 }
