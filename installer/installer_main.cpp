@@ -62,7 +62,95 @@ bool CreateShortcut(const wchar_t* targetPath, const wchar_t* shortcutPath, cons
     return success;
 }
 
+void CloseRunningInstances() {
+    HWND hwnd = FindWindowW(L"ETDTimerWindowClass", NULL);
+    if (hwnd) {
+        DWORD pid = 0;
+        GetWindowThreadProcessId(hwnd, &pid);
+        PostMessageW(hwnd, WM_CLOSE, 0, 0);
+        for (int i = 0; i < 15; i++) {
+            Sleep(100);
+            if (!IsWindow(hwnd)) break;
+        }
+        if (IsWindow(hwnd) && pid != 0) {
+            HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+            if (hProc) {
+                TerminateProcess(hProc, 0);
+                CloseHandle(hProc);
+            }
+        }
+    }
+}
+
+void ExecuteUninstallation() {
+    int res = MessageBoxW(NULL, 
+        L"ETDTimer bilgisayarınızdan kaldırılacaktır.\nDevam etmek istiyor musunuz?", 
+        L"ETDTimer Kaldırma Sihirbazı", 
+        MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
+
+    if (res != IDYES) return;
+
+    // 1. Close active app instances
+    CloseRunningInstances();
+
+    // 2. Remove autostart registry entry
+    HKEY hRunKey;
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hRunKey) == ERROR_SUCCESS) {
+        RegDeleteValueW(hRunKey, L"ETDTimer");
+        RegCloseKey(hRunKey);
+    }
+
+    // 3. Remove Control Panel Uninstall registry key
+    RegDeleteKeyW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ETDTimer");
+
+    // 4. Remove Desktop Shortcut
+    wchar_t desktopPath[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, desktopPath))) {
+        std::wstring shortcutFile = std::wstring(desktopPath) + L"\\ETDTimer.lnk";
+        DeleteFileW(shortcutFile.c_str());
+    }
+
+    // 5. Ask user if settings should be removed
+    int delData = MessageBoxW(NULL, 
+        L"Kullanıcı ayarlarınız ve geçmiş verileriniz de silinsin mi?\n(Önceki ayarlarınızı saklamak istiyorsanız 'Hayır'ı seçin)", 
+        L"ETDTimer Kaldırma Sihirbazı", 
+        MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
+
+    if (delData == IDYES) {
+        wchar_t appDataPath[MAX_PATH];
+        if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, appDataPath))) {
+            std::wstring configDir = std::wstring(appDataPath) + L"\\ETDTimer";
+            std::wstring configFile = configDir + L"\\config.ini";
+            DeleteFileW(configFile.c_str());
+            RemoveDirectoryW(configDir.c_str());
+        }
+    }
+
+    // 6. Delete install dir files & directory asynchronously via background cmd
+    wchar_t currentExe[MAX_PATH];
+    GetModuleFileNameW(NULL, currentExe, MAX_PATH);
+    std::wstring currentDir = currentExe;
+    size_t pos = currentDir.find_last_of(L"\\/");
+    if (pos != std::wstring::npos) currentDir = currentDir.substr(0, pos);
+
+    std::wstring cmd = L"cmd.exe /c start /b \"\" cmd /c \"timeout /t 1 /nobreak >nul & rmdir /s /q \"" + currentDir + L"\"\"";
+
+    STARTUPINFOW si = { sizeof(si) };
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    PROCESS_INFORMATION pi;
+    if (CreateProcessW(NULL, (LPWSTR)cmd.c_str(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+
+    MessageBoxW(NULL, L"ETDTimer başarıyla bilgisayarınızdan kaldırıldı.", L"ETDTimer Kaldırıldı", MB_OK | MB_ICONINFORMATION);
+}
+
 void ExecuteInstallation(HWND hwnd) {
+    // Automatically close any running ETDTimer instance before updating!
+    CloseRunningInstances();
+
     CreateDirectoryW(g_InstallDir, NULL);
 
     wchar_t currentExePath[MAX_PATH];
@@ -106,6 +194,11 @@ void ExecuteInstallation(HWND hwnd) {
     std::wstring destLogo = std::wstring(g_InstallDir) + L"\\etdtimer.png";
     CopyFileW(srcLogo.c_str(), destLogo.c_str(), FALSE);
 
+    // 3. Create standalone Uninstall.exe in target program directory
+    std::wstring targetUninstallExe = std::wstring(g_InstallDir) + L"\\Uninstall.exe";
+    CopyFileW(currentExePath, targetUninstallExe.c_str(), FALSE);
+
+    // 4. Desktop Shortcut
     if (g_CreateDesktopShortcut) {
         wchar_t desktopPath[MAX_PATH];
         SHGetFolderPathW(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, desktopPath);
@@ -113,6 +206,7 @@ void ExecuteInstallation(HWND hwnd) {
         CreateShortcut(targetExe.c_str(), shortcutFile.c_str(), L"ETDTimer Floating Clock & Tools");
     }
 
+    // 5. Autostart Registry
     if (g_StartWithWindows) {
         HKEY hKey;
         if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) {
@@ -122,14 +216,29 @@ void ExecuteInstallation(HWND hwnd) {
         }
     }
 
+    // 6. Control Panel Uninstall Registry Registration
     HKEY hUnKey;
     if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ETDTimer", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hUnKey, NULL) == ERROR_SUCCESS) {
         std::wstring dispName = L"ETDTimer";
         std::wstring publisher = L"Emir Tuğra Dağ";
+        std::wstring version = L"1.0.0";
+        std::wstring iconPath = targetExe + L",0";
+        std::wstring uninstallCmd = L"\"" + targetUninstallExe + L"\" /uninstall";
+
         RegSetValueExW(hUnKey, L"DisplayName", 0, REG_SZ, (BYTE*)dispName.c_str(), (DWORD)((dispName.length() + 1) * sizeof(wchar_t)));
         RegSetValueExW(hUnKey, L"Publisher", 0, REG_SZ, (BYTE*)publisher.c_str(), (DWORD)((publisher.length() + 1) * sizeof(wchar_t)));
+        RegSetValueExW(hUnKey, L"DisplayVersion", 0, REG_SZ, (BYTE*)version.c_str(), (DWORD)((version.length() + 1) * sizeof(wchar_t)));
         RegSetValueExW(hUnKey, L"InstallLocation", 0, REG_SZ, (BYTE*)g_InstallDir, (DWORD)((wcslen(g_InstallDir) + 1) * sizeof(wchar_t)));
-        RegSetValueExW(hUnKey, L"DisplayIcon", 0, REG_SZ, (BYTE*)targetExe.c_str(), (DWORD)((targetExe.length() + 1) * sizeof(wchar_t)));
+        RegSetValueExW(hUnKey, L"DisplayIcon", 0, REG_SZ, (BYTE*)iconPath.c_str(), (DWORD)((iconPath.length() + 1) * sizeof(wchar_t)));
+        RegSetValueExW(hUnKey, L"UninstallString", 0, REG_SZ, (BYTE*)uninstallCmd.c_str(), (DWORD)((uninstallCmd.length() + 1) * sizeof(wchar_t)));
+
+        DWORD sizeKB = 2000;
+        RegSetValueExW(hUnKey, L"EstimatedSize", 0, REG_DWORD, (BYTE*)&sizeKB, sizeof(DWORD));
+        DWORD noModify = 1;
+        RegSetValueExW(hUnKey, L"NoModify", 0, REG_DWORD, (BYTE*)&noModify, sizeof(DWORD));
+        DWORD noRepair = 1;
+        RegSetValueExW(hUnKey, L"NoRepair", 0, REG_DWORD, (BYTE*)&noRepair, sizeof(DWORD));
+
         RegCloseKey(hUnKey);
     }
 }
@@ -492,6 +601,22 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    wchar_t currentExe[MAX_PATH];
+    GetModuleFileNameW(NULL, currentExe, MAX_PATH);
+    std::wstring exeName = currentExe;
+    size_t pos = exeName.find_last_of(L"\\/");
+    if (pos != std::wstring::npos) exeName = exeName.substr(pos + 1);
+    for (auto& c : exeName) c = towlower(c);
+
+    bool isUninstallMode = (wcsstr(pCmdLine, L"/uninstall") != NULL ||
+                            wcsstr(pCmdLine, L"-uninstall") != NULL ||
+                            exeName.find(L"uninstall") != std::wstring::npos);
+
+    if (isUninstallMode) {
+        ExecuteUninstallation();
+        return 0;
+    }
+
     WNDCLASSEXW wc = {0};
     wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
