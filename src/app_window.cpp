@@ -132,7 +132,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
             SetForegroundWindow(m_hwnd);
             m_settingsOpen = true;
-            InvalidateRect(m_hwnd, NULL, FALSE);
+            RecalculateLayout();
             break;
         case IDM_TRAY_EXIT:
             PostQuitMessage(0);
@@ -228,7 +228,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             if (x >= modalX + modalW - 30 && x <= modalX + modalW && y >= modalY && y <= modalY + 30) {
                 m_settingsOpen = false;
                 SettingsManager::Instance().Save();
-                InvalidateRect(m_hwnd, NULL, FALSE);
+                RecalculateLayout();
                 return 0;
             }
 
@@ -310,7 +310,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             // Burger menu click [x: m_windowWidth - 110 .. m_windowWidth - 80]
             if (x >= m_windowWidth - 110 && x <= m_windowWidth - 80) {
                 m_menuOpen = !m_menuOpen;
-                InvalidateRect(m_hwnd, NULL, FALSE);
+                RecalculateLayout();
                 return 0;
             }
             // Eye button click [x: m_windowWidth - 75 .. m_windowWidth - 45]
@@ -321,7 +321,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             // Gear button click [x: m_windowWidth - 40 .. m_windowWidth - 10]
             if (x >= m_windowWidth - 40 && x <= m_windowWidth - 10) {
                 m_settingsOpen = !m_settingsOpen;
-                InvalidateRect(m_hwnd, NULL, FALSE);
+                RecalculateLayout();
                 return 0;
             }
 
@@ -345,7 +345,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 else if (y >= 112 && y <= 145) AddTool(TOOL_POMODORO);
             }
             m_menuOpen = false;
-            InvalidateRect(m_hwnd, NULL, FALSE);
+            RecalculateLayout();
             return 0;
         }
 
@@ -480,6 +480,16 @@ void AppWindow::RecalculateLayout() {
 
         m_windowWidth = numCols * 350 - 10;
         m_windowHeight = maxH;
+    }
+
+    // Expand window dimensions dynamically if Settings modal or Burger menu is open!
+    if (m_settingsOpen) {
+        if (m_windowWidth < 340) m_windowWidth = 340;
+        if (m_windowHeight < 390) m_windowHeight = 390;
+    }
+    if (m_menuOpen) {
+        if (m_windowWidth < 340) m_windowWidth = 340;
+        if (m_windowHeight < 165) m_windowHeight = 165;
     }
 
     SetWindowPos(m_hwnd, NULL, 0, 0, m_windowWidth, m_windowHeight, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
