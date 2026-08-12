@@ -162,9 +162,14 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         int oldHover = g_HoverButton;
         g_HoverButton = -1;
 
-        if (y >= 310 && y <= 350) {
-            if (x >= 20 && x <= 110) g_HoverButton = 10; // Back / Cancel
-            if (x >= 390 && x <= 490) g_HoverButton = 11; // Next / Install / Finish
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+        int footerTop = rect.bottom - 50;
+        int footerBottom = rect.bottom - 10;
+
+        if (y >= footerTop && y <= footerBottom) {
+            if (x >= 20 && x <= 120) g_HoverButton = 10; // Back / Cancel
+            if (x >= 380 && x <= 490) g_HoverButton = 11; // Next / Install / Finish
         } else if (g_CurrentStep == STEP_LANG_SELECT && y >= 140 && y <= 210) {
             if (x >= 40 && x <= 240) g_HoverButton = 1; // TR Button
             if (x >= 270 && x <= 470) g_HoverButton = 2; // EN Button
@@ -281,8 +286,11 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             TextOutW(memDC, 30, 95, (g_SetupLang == SETUP_TR) ? L"Kurulum Seçenekleri:" : L"Installation Options:", 22);
             SelectObject(memDC, hFontBody);
 
-            TextOutW(memDC, 65, 140, (g_SetupLang == SETUP_TR) ? L"Masaüstü Kısayolu Oluştur" : L"Create Desktop Shortcut", 28);
-            TextOutW(memDC, 65, 185, (g_SetupLang == SETUP_TR) ? L"Windows Başlangıcında Otomatik Çalıştır" : L"Start Automatically with Windows", 35);
+            const wchar_t* txt1 = (g_SetupLang == SETUP_TR) ? L"Masaüstü Kısayolu Oluştur" : L"Create Desktop Shortcut";
+            const wchar_t* txt2 = (g_SetupLang == SETUP_TR) ? L"Windows Başlangıcında Otomatik Çalıştır" : L"Start Automatically with Windows";
+
+            TextOutW(memDC, 65, 140, txt1, (int)wcslen(txt1));
+            TextOutW(memDC, 65, 185, txt2, (int)wcslen(txt2));
 
             // Draw Checkboxes
             RECT chk1 = {35, 138, 55, 158};
@@ -292,7 +300,8 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             DrawStyledButton(memDC, chk2, g_StartWithWindows ? L"✓" : L"", false, g_StartWithWindows);
 
         } else if (g_CurrentStep == STEP_INSTALLING) {
-            TextOutW(memDC, 30, 120, (g_SetupLang == SETUP_TR) ? L"Dosyalar kopyalanıyor ve kayıtlar yapılıyor..." : L"Copying files and writing registry...", 45);
+            const wchar_t* txtProg = (g_SetupLang == SETUP_TR) ? L"Dosyalar kopyalanıyor ve kayıtlar yapılıyor..." : L"Copying files and writing registry...";
+            TextOutW(memDC, 30, 120, txtProg, (int)wcslen(txtProg));
 
             RECT progRect = {30, 160, rect.right - 30, 185};
             HBRUSH bgProg = CreateSolidBrush(RGB(230, 235, 245));
@@ -307,11 +316,13 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         } else if (g_CurrentStep == STEP_FINISH) {
             SelectObject(memDC, hFontBodyBold);
             SetTextColor(memDC, RGB(0, 173, 181));
-            TextOutW(memDC, 30, 100, (g_SetupLang == SETUP_TR) ? L"Kurulum Başarıyla Tamamlandı!" : L"Installation Completed Successfully!", 36);
+            const wchar_t* txtDone = (g_SetupLang == SETUP_TR) ? L"Kurulum Başarıyla Tamamlandı!" : L"Installation Completed Successfully!";
+            TextOutW(memDC, 30, 100, txtDone, (int)wcslen(txtDone));
             SetTextColor(memDC, RGB(40, 45, 55));
             SelectObject(memDC, hFontBody);
 
-            TextOutW(memDC, 65, 155, (g_SetupLang == SETUP_TR) ? L"ETDTimer uygulamasını şimdi başlat" : L"Launch ETDTimer application now", 35);
+            const wchar_t* txtRun = (g_SetupLang == SETUP_TR) ? L"ETDTimer uygulamasını şimdi başlat" : L"Launch ETDTimer application now";
+            TextOutW(memDC, 65, 155, txtRun, (int)wcslen(txtRun));
 
             RECT chkFinish = {35, 153, 55, 173};
             DrawStyledButton(memDC, chkFinish, g_LaunchAfterSetup ? L"✓" : L"", false, g_LaunchAfterSetup);
@@ -400,8 +411,13 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
         }
 
-        // Navigation Footer Button clicks (y >= 310 && y <= 350)
-        if (y >= 310 && y <= 350) {
+        // Navigation Footer Button clicks (Y inside footer button bounds)
+        RECT clientRect;
+        GetClientRect(hwnd, &clientRect);
+        int footerTop = clientRect.bottom - 50;
+        int footerBottom = clientRect.bottom - 10;
+
+        if (y >= footerTop && y <= footerBottom) {
             // Left Button (Back / Cancel)
             if (x >= 20 && x <= 120) {
                 if (g_CurrentStep == STEP_LANG_SELECT) {
