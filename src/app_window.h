@@ -22,6 +22,10 @@ public:
     void ToggleToolsCollapse();
 
 private:
+    void InitTrayIcon();
+    void RemoveTrayIcon();
+    void ShowTrayContextMenu();
+
     static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -31,6 +35,7 @@ private:
     void RestoreState();
 
     HWND m_hwnd = NULL;
+    NOTIFYICONDATAW m_nid = {0};
     UIRenderer m_renderer;
 
     std::vector<std::unique_ptr<ToolCard>> m_tools;

@@ -2,10 +2,16 @@
 #include "settings.h"
 #include <sstream>
 
+#define WM_TRAYICON (WM_USER + 1)
+#define IDM_TRAY_SHOW 2001
+#define IDM_TRAY_SETTINGS 2002
+#define IDM_TRAY_EXIT 2003
+
 AppWindow::AppWindow() {}
 
 AppWindow::~AppWindow() {
     SaveState();
+    RemoveTrayIcon();
 }
 
 bool AppWindow::Create() {
@@ -21,7 +27,7 @@ bool AppWindow::Create() {
     RegisterClassExW(&wc);
 
     int screenW = GetSystemMetrics(SM_CXSCREEN);
-    int posX = screenW - 350;
+    int posX = screenW - 370;
     int posY = 50;
 
     m_hwnd = CreateWindowExW(
@@ -35,6 +41,8 @@ bool AppWindow::Create() {
 
     if (!m_hwnd) return false;
 
+    InitTrayIcon();
+
     SetTimer(m_hwnd, 1, 100, NULL);  // 100ms render & tool update timer
     SetTimer(m_hwnd, 2, 1000, NULL); // 1000ms fullscreen detection timer
 
@@ -42,6 +50,38 @@ bool AppWindow::Create() {
     RecalculateLayout();
 
     return true;
+}
+
+void AppWindow::InitTrayIcon() {
+    memset(&m_nid, 0, sizeof(m_nid));
+    m_nid.cbSize = sizeof(NOTIFYICONDATAW);
+    m_nid.hWnd = m_hwnd;
+    m_nid.uID = 1001;
+    m_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    m_nid.uCallbackMessage = WM_TRAYICON;
+    m_nid.hIcon = (HICON)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(101), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+    wcscpy_s(m_nid.szTip, 128, L"ETDTimer");
+    Shell_NotifyIconW(NIM_ADD, &m_nid);
+}
+
+void AppWindow::RemoveTrayIcon() {
+    Shell_NotifyIconW(NIM_DELETE, &m_nid);
+}
+
+void AppWindow::ShowTrayContextMenu() {
+    HMENU hMenu = CreatePopupMenu();
+    if (hMenu) {
+        InsertMenuW(hMenu, 0, MF_BYPOSITION | MF_STRING, IDM_TRAY_SHOW, SettingsManager::Instance().Text("SHOW_HIDE"));
+        InsertMenuW(hMenu, 1, MF_BYPOSITION | MF_STRING, IDM_TRAY_SETTINGS, SettingsManager::Instance().Text("SETTINGS"));
+        InsertMenuW(hMenu, 2, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+        InsertMenuW(hMenu, 3, MF_BYPOSITION | MF_STRING, IDM_TRAY_EXIT, SettingsManager::Instance().Text("EXIT"));
+
+        POINT pt;
+        GetCursorPos(&pt);
+        SetForegroundWindow(m_hwnd);
+        TrackPopupMenu(hMenu, TPM_RIGHTBUTTON, pt.x, pt.y, 0, m_hwnd, NULL);
+        DestroyMenu(hMenu);
+    }
 }
 
 void AppWindow::RunMessageLoop() {
@@ -72,6 +112,34 @@ LRESULT CALLBACK AppWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 
 LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
+    case WM_TRAYICON:
+        if (lParam == WM_RBUTTONUP) {
+            ShowTrayContextMenu();
+        } else if (lParam == WM_LBUTTONUP || lParam == WM_LBUTTONDBLCLK) {
+            BOOL vis = IsWindowVisible(m_hwnd);
+            ShowWindow(m_hwnd, vis ? SW_HIDE : SW_SHOWNOACTIVATE);
+            if (!vis) SetForegroundWindow(m_hwnd);
+        }
+        return 0;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDM_TRAY_SHOW:
+            if (IsWindowVisible(m_hwnd)) ShowWindow(m_hwnd, SW_HIDE);
+            else { ShowWindow(m_hwnd, SW_SHOWNOACTIVATE); SetForegroundWindow(m_hwnd); }
+            break;
+        case IDM_TRAY_SETTINGS:
+            ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
+            SetForegroundWindow(m_hwnd);
+            m_settingsOpen = true;
+            InvalidateRect(m_hwnd, NULL, FALSE);
+            break;
+        case IDM_TRAY_EXIT:
+            PostQuitMessage(0);
+            break;
+        }
+        return 0;
+
     case WM_TIMER:
         if (wParam == 1) {
             // Update tools & redraw
@@ -103,7 +171,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         // Render active tool cards if expanded
         if (!m_toolsCollapsed) {
             int curY = 55;
-            int cardW = 320;
+            int cardW = 340;
             int colX = 0;
             int maxColH = 55;
 
@@ -116,7 +184,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 
                 // Column overflow wrapping logic (Grid mode)
                 if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
-                    colX += 330;
+                    colX += 350;
                     curY = 55;
                 }
 
@@ -126,12 +194,12 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             }
         }
 
-        // Render Tool Selector Popup Menu
+        // Render Burger Menu popup
         if (m_menuOpen) {
-            m_renderer.RenderToolMenu(g, m_windowWidth - 110, 42, 100, 100);
+            m_renderer.RenderToolMenu(g, m_windowWidth - 170, 50, 160, 110);
         }
 
-        // Render Settings Modal Window
+        // Render Settings Modal overlay
         if (m_settingsOpen) {
             m_renderer.RenderSettingsModal(g, m_windowWidth, m_windowHeight);
         }
@@ -271,10 +339,10 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Menu selection interaction
         if (m_menuOpen) {
-            if (x >= m_windowWidth - 110 && x <= m_windowWidth - 10) {
-                if (y >= 45 && y <= 75) AddTool(TOOL_STOPWATCH);
-                else if (y >= 75 && y <= 105) AddTool(TOOL_TIMER);
-                else if (y >= 105 && y <= 135) AddTool(TOOL_POMODORO);
+            if (x >= m_windowWidth - 170 && x <= m_windowWidth - 10) {
+                if (y >= 45 && y <= 80) AddTool(TOOL_STOPWATCH);
+                else if (y >= 80 && y <= 112) AddTool(TOOL_TIMER);
+                else if (y >= 112 && y <= 145) AddTool(TOOL_POMODORO);
             }
             m_menuOpen = false;
             InvalidateRect(m_hwnd, NULL, FALSE);
@@ -292,13 +360,13 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             for (size_t i = 0; i < m_tools.size(); i++) {
                 int cardH = m_tools[i]->GetHeight();
                 if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
-                    colX += 330;
+                    colX += 350;
                     curY = 55;
                 }
 
-                if (x >= colX && x <= colX + 320 && y >= curY && y <= curY + cardH) {
+                if (x >= colX && x <= colX + 340 && y >= curY && y <= curY + cardH) {
                     // Close button (X) click
-                    if (x >= colX + 290 && x <= colX + 315 && y >= curY + 5 && y <= curY + 30) {
+                    if (x >= colX + 305 && x <= colX + 335 && y >= curY + 5 && y <= curY + 30) {
                         RemoveTool(m_tools[i]->GetId());
                         return 0;
                     }
@@ -389,7 +457,7 @@ void AppWindow::ToggleToolsCollapse() {
 
 void AppWindow::RecalculateLayout() {
     if (m_toolsCollapsed || m_tools.empty()) {
-        m_windowWidth = 320;
+        m_windowWidth = 340;
         m_windowHeight = 50;
     } else {
         RECT workArea;
@@ -410,7 +478,7 @@ void AppWindow::RecalculateLayout() {
             if (curY > maxH) maxH = curY;
         }
 
-        m_windowWidth = numCols * 330 - 10;
+        m_windowWidth = numCols * 350 - 10;
         m_windowHeight = maxH;
     }
 

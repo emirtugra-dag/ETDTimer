@@ -145,9 +145,9 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(digits, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 30), m_textBrush);
 
         // Buttons: Start/Pause, Lap, Reset
-        RectF btn1((REAL)x + 15, (REAL)y + 75, 80, 30);
-        RectF btn2((REAL)x + 105, (REAL)y + 75, 80, 30);
-        RectF btn3((REAL)x + 195, (REAL)y + 75, 80, 30);
+        RectF btn1((REAL)x + 15, (REAL)y + 75, 95, 30);
+        RectF btn2((REAL)x + 120, (REAL)y + 75, 95, 30);
+        RectF btn3((REAL)x + 225, (REAL)y + 75, 95, 30);
 
         g.FillRectangle(m_buttonBrush, btn1); g.DrawRectangle(m_borderPen, btn1);
         g.FillRectangle(m_buttonBrush, btn2); g.DrawRectangle(m_borderPen, btn2);
@@ -155,8 +155,8 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
 
         const wchar_t* startPause = sw->IsRunning() ? SettingsManager::Instance().Text("PAUSE") : SettingsManager::Instance().Text("START");
         g.DrawString(startPause, -1, &smallFont, PointF((REAL)x + 25, (REAL)y + 81), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("LAP"), -1, &smallFont, PointF((REAL)x + 115, (REAL)y + 81), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 205, (REAL)y + 81), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("LAP"), -1, &smallFont, PointF((REAL)x + 130, (REAL)y + 81), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 235, (REAL)y + 81), m_textBrush);
 
         // Render Lap records
         int lapY = y + 115;
@@ -172,12 +172,12 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         TimerTool* tm = (TimerTool*)card;
 
         // Tabs: Duration vs Target Time
-        RectF tab1((REAL)x + 15, (REAL)y + 32, 110, 22);
-        RectF tab2((REAL)x + 135, (REAL)y + 32, 120, 22);
+        RectF tab1((REAL)x + 15, (REAL)y + 30, 145, 26);
+        RectF tab2((REAL)x + 170, (REAL)y + 30, 155, 26);
         g.FillRectangle(tm->GetMode() == TIMER_MODE_DURATION ? m_accentBrush : m_buttonBrush, tab1);
         g.FillRectangle(tm->GetMode() == TIMER_MODE_TARGET_TIME ? m_accentBrush : m_buttonBrush, tab2);
-        g.DrawString(SettingsManager::Instance().Text("MODE_DURATION"), -1, &smallFont, PointF((REAL)x + 20, (REAL)y + 35), tm->GetMode() == TIMER_MODE_DURATION ? m_cardBrush : m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("MODE_TARGET_TIME"), -1, &smallFont, PointF((REAL)x + 140, (REAL)y + 35), tm->GetMode() == TIMER_MODE_TARGET_TIME ? m_cardBrush : m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("MODE_DURATION"), -1, &smallFont, PointF((REAL)x + 22, (REAL)y + 34), tm->GetMode() == TIMER_MODE_DURATION ? m_cardBrush : m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("MODE_TARGET_TIME"), -1, &smallFont, PointF((REAL)x + 176, (REAL)y + 34), tm->GetMode() == TIMER_MODE_TARGET_TIME ? m_cardBrush : m_textBrush);
 
         // Digit countdown
         int remSec = tm->GetRemainingSec();
@@ -195,21 +195,21 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 60), m_textBrush);
 
         // Input Box & Start/Pause
-        RectF inputBox((REAL)x + 15, (REAL)y + 105, 100, 28);
+        RectF inputBox((REAL)x + 15, (REAL)y + 105, 110, 30);
         g.FillRectangle(m_buttonBrush, inputBox);
         Pen focusPen(Color(255, 0, 173, 181), 2.0f);
         g.DrawRectangle(tm->activeInputIndex == 0 ? &focusPen : m_borderPen, inputBox);
         const wchar_t* valStr = (tm->GetMode() == TIMER_MODE_DURATION) ? tm->durationInputStr.c_str() : tm->targetTimeInputStr.c_str();
         g.DrawString(valStr, -1, &bodyFont, PointF((REAL)x + 22, (REAL)y + 108), m_textBrush);
 
-        RectF startBtn((REAL)x + 125, (REAL)y + 105, 80, 28);
-        RectF resetBtn((REAL)x + 215, (REAL)y + 105, 80, 28);
+        RectF startBtn((REAL)x + 135, (REAL)y + 105, 90, 30);
+        RectF resetBtn((REAL)x + 235, (REAL)y + 105, 90, 30);
         g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
         g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
 
         const wchar_t* stTxt = tm->IsRunning() ? SettingsManager::Instance().Text("PAUSE") : SettingsManager::Instance().Text("START");
-        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 135, (REAL)y + 110), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 225, (REAL)y + 110), m_textBrush);
+        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 145, (REAL)y + 110), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 110), m_textBrush);
 
     } else if (card->GetType() == TOOL_POMODORO) {
         PomodoroTool* pm = (PomodoroTool*)card;
@@ -235,34 +235,34 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(timeBuf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 50), m_textBrush);
 
         // 4 Input parameter boxes: Work min, Break min, Target hrs, Num breaks
-        RectF box1((REAL)x + 15, (REAL)y + 95, 60, 24);
-        RectF box2((REAL)x + 85, (REAL)y + 95, 60, 24);
-        RectF box3((REAL)x + 155, (REAL)y + 95, 60, 24);
-        RectF box4((REAL)x + 225, (REAL)y + 95, 60, 24);
+        RectF box1((REAL)x + 15, (REAL)y + 95, 70, 26);
+        RectF box2((REAL)x + 95, (REAL)y + 95, 70, 26);
+        RectF box3((REAL)x + 175, (REAL)y + 95, 70, 26);
+        RectF box4((REAL)x + 255, (REAL)y + 95, 70, 26);
 
         g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(m_borderPen, box1);
         g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(m_borderPen, box2);
         g.FillRectangle(m_buttonBrush, box3); g.DrawRectangle(m_borderPen, box3);
         g.FillRectangle(m_buttonBrush, box4); g.DrawRectangle(m_borderPen, box4);
 
-        g.DrawString(pm->workMinStr.c_str(), -1, &smallFont, PointF((REAL)x + 20, (REAL)y + 98), m_textBrush);
-        g.DrawString(pm->breakMinStr.c_str(), -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 98), m_textBrush);
-        g.DrawString(pm->targetHoursStr.c_str(), -1, &smallFont, PointF((REAL)x + 160, (REAL)y + 98), m_textBrush);
-        g.DrawString(pm->numBreaksStr.c_str(), -1, &smallFont, PointF((REAL)x + 230, (REAL)y + 98), m_textBrush);
+        g.DrawString(pm->workMinStr.c_str(), -1, &smallFont, PointF((REAL)x + 22, (REAL)y + 98), m_textBrush);
+        g.DrawString(pm->breakMinStr.c_str(), -1, &smallFont, PointF((REAL)x + 102, (REAL)y + 98), m_textBrush);
+        g.DrawString(pm->targetHoursStr.c_str(), -1, &smallFont, PointF((REAL)x + 182, (REAL)y + 98), m_textBrush);
+        g.DrawString(pm->numBreaksStr.c_str(), -1, &smallFont, PointF((REAL)x + 262, (REAL)y + 98), m_textBrush);
 
-        g.DrawString(SettingsManager::Instance().Text("WORK_MIN"), -1, &smallFont, PointF((REAL)x + 15, (REAL)y + 122), m_textDimBrush);
-        g.DrawString(SettingsManager::Instance().Text("BREAK_MIN"), -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 122), m_textDimBrush);
-        g.DrawString(SettingsManager::Instance().Text("TARGET_HOURS"), -1, &smallFont, PointF((REAL)x + 155, (REAL)y + 122), m_textDimBrush);
-        g.DrawString(SettingsManager::Instance().Text("NUM_BREAKS"), -1, &smallFont, PointF((REAL)x + 225, (REAL)y + 122), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("WORK_MIN"), -1, &smallFont, PointF((REAL)x + 15, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("BREAK_MIN"), -1, &smallFont, PointF((REAL)x + 95, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("TARGET_HOURS"), -1, &smallFont, PointF((REAL)x + 175, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("NUM_BREAKS"), -1, &smallFont, PointF((REAL)x + 255, (REAL)y + 125), m_textDimBrush);
 
         // Buttons: Calculate & Start, Reset
-        RectF startBtn((REAL)x + 15, (REAL)y + 148, 160, 28);
-        RectF resetBtn((REAL)x + 185, (REAL)y + 148, 100, 28);
+        RectF startBtn((REAL)x + 15, (REAL)y + 155, 195, 30);
+        RectF resetBtn((REAL)x + 220, (REAL)y + 155, 105, 30);
         g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
         g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
 
-        g.DrawString(SettingsManager::Instance().Text("COMPUTE_POMODORO"), -1, &smallFont, PointF((REAL)x + 22, (REAL)y + 153), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 215, (REAL)y + 153), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("COMPUTE_POMODORO"), -1, &smallFont, PointF((REAL)x + 25, (REAL)y + 161), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 161), m_textBrush);
     }
 }
 
@@ -276,16 +276,13 @@ void UIRenderer::RenderToolMenu(Graphics& g, int x, int y, int width, int height
     Font itemFont(L"Segoe UI", 10, FontStyleRegular, UnitPoint);
 
     // Item 1: Stopwatch
-    RectF item1((REAL)x + 5, (REAL)y + 5, (REAL)width - 10, 28);
     g.DrawString(SettingsManager::Instance().Text("STOPWATCH"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 10), m_textBrush);
 
     // Item 2: Timer
-    RectF item2((REAL)x + 5, (REAL)y + 35, (REAL)width - 10, 28);
-    g.DrawString(SettingsManager::Instance().Text("TIMER"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 40), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("TIMER"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 42), m_textBrush);
 
     // Item 3: Pomodoro
-    RectF item3((REAL)x + 5, (REAL)y + 65, (REAL)width - 10, 28);
-    g.DrawString(SettingsManager::Instance().Text("POMODORO"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 70), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("POMODORO"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 74), m_textBrush);
 }
 
 void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {

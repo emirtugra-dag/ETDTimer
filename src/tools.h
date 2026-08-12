@@ -46,7 +46,7 @@ protected:
     ToolType m_type;
     int m_id;
     bool m_hidden = false;
-    int m_width = 320;
+    int m_width = 340;
     int m_height = 120;
     static int s_nextId;
 };

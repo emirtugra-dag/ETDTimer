@@ -25,15 +25,13 @@ void StopwatchTool::Update(DWORD deltaMs) {
 }
 
 bool StopwatchTool::OnLButtonDown(int x, int y) {
-    // Button area checks relative to card bounds
-    // [Start/Pause] [Lap] [Reset]
-    // Start/Pause button: x inside [20, 100], y inside [50, 80]
-    if (x >= 20 && x <= 100 && y >= 50 && y <= 80) {
+    // Start/Pause button: x inside [15, 110], y inside [75, 105]
+    if (x >= 15 && x <= 110 && y >= 75 && y <= 105) {
         m_running = !m_running;
         return true;
     }
-    // Lap button: x inside [110, 190], y inside [50, 80]
-    if (x >= 110 && x <= 190 && y >= 50 && y <= 80) {
+    // Lap button: x inside [120, 215], y inside [75, 105]
+    if (x >= 120 && x <= 215 && y >= 75 && y <= 105) {
         if (m_elapsedMs > 0) {
             LapRecord rec;
             rec.lapIndex = (int)m_laps.size() + 1;
@@ -53,8 +51,8 @@ bool StopwatchTool::OnLButtonDown(int x, int y) {
         }
         return true;
     }
-    // Reset button: x inside [200, 280], y inside [50, 80]
-    if (x >= 200 && x <= 280 && y >= 50 && y <= 80) {
+    // Reset button: x inside [225, 320], y inside [75, 105]
+    if (x >= 225 && x <= 320 && y >= 75 && y <= 105) {
         m_running = false;
         m_elapsedMs = 0;
         m_laps.clear();
@@ -113,28 +111,28 @@ void TimerTool::Update(DWORD deltaMs) {
 }
 
 bool TimerTool::OnLButtonDown(int x, int y) {
-    // Mode toggle tabs: Mode 0 [20, 140], Mode 1 [150, 270], y [40, 65]
-    if (y >= 40 && y <= 65) {
-        if (x >= 20 && x <= 140) {
+    // Mode toggle tabs: Mode 0 [15, 160], Mode 1 [170, 325], y [30, 56]
+    if (y >= 30 && y <= 56) {
+        if (x >= 15 && x <= 160) {
             m_mode = TIMER_MODE_DURATION;
             return true;
         }
-        if (x >= 150 && x <= 270) {
+        if (x >= 170 && x <= 325) {
             m_mode = TIMER_MODE_TARGET_TIME;
             return true;
         }
     }
 
-    // Input Box Click: x [20, 120], y [75, 100]
-    if (x >= 20 && x <= 120 && y >= 75 && y <= 100) {
+    // Input Box Click: x [15, 125], y [105, 135]
+    if (x >= 15 && x <= 125 && y >= 105 && y <= 135) {
         activeInputIndex = 0;
         return true;
     } else {
         activeInputIndex = -1;
     }
 
-    // Start/Pause Button: x [140, 210], y [75, 105]
-    if (x >= 140 && x <= 210 && y >= 75 && y <= 105) {
+    // Start/Pause Button: x [135, 225], y [105, 135]
+    if (x >= 135 && x <= 225 && y >= 105 && y <= 135) {
         if (!m_running) {
             if (m_mode == TIMER_MODE_DURATION) {
                 int mins = _wtoi(durationInputStr.c_str());
@@ -150,8 +148,8 @@ bool TimerTool::OnLButtonDown(int x, int y) {
         return true;
     }
 
-    // Reset Button: x [220, 290], y [75, 105]
-    if (x >= 220 && x <= 290 && y >= 75 && y <= 105) {
+    // Reset Button: x [235, 325], y [105, 135]
+    if (x >= 235 && x <= 325 && y >= 105 && y <= 135) {
         m_running = false;
         m_finished = false;
         if (m_mode == TIMER_MODE_DURATION) {
@@ -180,7 +178,7 @@ void TimerTool::OnCharInput(wchar_t ch) {
 // Pomodoro Implementation
 // ----------------------------------------------------
 PomodoroTool::PomodoroTool() : ToolCard(TOOL_POMODORO) {
-    m_height = 190;
+    m_height = 200;
     ComputePlan();
 }
 
@@ -235,27 +233,27 @@ void PomodoroTool::Update(DWORD deltaMs) {
 
 bool PomodoroTool::OnLButtonDown(int x, int y) {
     // Inputs:
-    // Work min box: x [15, 75], y [40, 65]
-    if (x >= 15 && x <= 75 && y >= 40 && y <= 65) { activeInputIndex = 0; return true; }
-    // Break min box: x [85, 145], y [40, 65]
-    if (x >= 85 && x <= 145 && y >= 40 && y <= 65) { activeInputIndex = 1; return true; }
-    // Target Hours box: x [155, 215], y [40, 65]
-    if (x >= 155 && x <= 215 && y >= 40 && y <= 65) { activeInputIndex = 2; return true; }
-    // Num Breaks box: x [225, 295], y [40, 65]
-    if (x >= 225 && x <= 295 && y >= 40 && y <= 65) { activeInputIndex = 3; return true; }
+    // Work min box: x [15, 85], y [95, 120]
+    if (x >= 15 && x <= 85 && y >= 95 && y <= 120) { activeInputIndex = 0; return true; }
+    // Break min box: x [95, 165], y [95, 120]
+    if (x >= 95 && x <= 165 && y >= 95 && y <= 120) { activeInputIndex = 1; return true; }
+    // Target Hours box: x [175, 245], y [95, 120]
+    if (x >= 175 && x <= 245 && y >= 95 && y <= 120) { activeInputIndex = 2; return true; }
+    // Num Breaks box: x [255, 325], y [95, 120]
+    if (x >= 255 && x <= 325 && y >= 95 && y <= 120) { activeInputIndex = 3; return true; }
 
     activeInputIndex = -1;
 
-    // Calculate & Start Button: x [20, 180], y [140, 175]
-    if (x >= 20 && x <= 180 && y >= 140 && y <= 175) {
+    // Calculate & Start Button: x [15, 210], y [155, 188]
+    if (x >= 15 && x <= 210 && y >= 155 && y <= 188) {
         ComputePlan();
         m_state = POMO_WORK;
         m_running = true;
         return true;
     }
 
-    // Reset Button: x [190, 280], y [140, 175]
-    if (x >= 190 && x <= 280 && y >= 140 && y <= 175) {
+    // Reset Button: x [220, 325], y [155, 188]
+    if (x >= 220 && x <= 325 && y >= 155 && y <= 188) {
         ComputePlan();
         return true;
     }

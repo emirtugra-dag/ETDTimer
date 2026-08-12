@@ -55,6 +55,8 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"SAVE", {L"Kaydet", L"Save"}},
     {"LEGAL_NOTICE", {L"Yasal Bildirim", L"Legal Disclaimer"}},
     {"MAX_TOOL_LIMIT", {L"En fazla 3 adet aynı araçtan ve toplam 10 araç açılabilir!", L"Max 3 instances per tool & max 10 total tools allowed!"}},
+    {"SHOW_HIDE", {L"Göster / Gizle", L"Show / Hide"}},
+    {"EXIT", {L"Çıkış", L"Exit"}},
     {"TURKISH", {L"Türkçe", L"Turkish"}},
     {"ENGLISH", {L"English", L"English"}}
 };
