@@ -63,6 +63,8 @@ public:
     bool IsRunning() const { return m_running; }
     DWORD GetElapsedMs() const { return m_elapsedMs; }
     const std::vector<LapRecord>& GetLaps() const { return m_laps; }
+    int GetScrollOffset() const { return m_scrollOffset; }
+    void ScrollLaps(int delta) { m_scrollOffset = std::max(0, m_scrollOffset + delta); }
 
 private:
     bool m_running = false;
@@ -91,9 +93,9 @@ public:
     int GetRemainingSec() const { return m_remainingSec; }
     int GetInitialSec() const { return m_initialSec; }
 
-    std::wstring durationInputStr = L"15";
-    std::wstring targetTimeInputStr = L"17:30";
-    int activeInputIndex = -1; // 0 for duration/target time box
+    int inputHours = 0;
+    int inputMins = 15;
+    int activeInputIndex = -1;
 
 private:
     TimerMode m_mode = TIMER_MODE_DURATION;

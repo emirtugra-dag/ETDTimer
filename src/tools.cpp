@@ -73,39 +73,18 @@ TimerTool::TimerTool() : ToolCard(TOOL_TIMER) {
 void TimerTool::Update(DWORD deltaMs) {
     if (!m_running || m_finished) return;
 
-    static DWORD accumulator = 0;
-    accumulator += deltaMs;
-    if (accumulator >= 1000) {
-        int secPassed = accumulator / 1000;
-        accumulator %= 1000;
+    static DWORD timerAcc = 0;
+    timerAcc += deltaMs;
+    if (timerAcc >= 1000) {
+        int secPassed = timerAcc / 1000;
+        timerAcc %= 1000;
 
-        if (m_mode == TIMER_MODE_DURATION) {
-            m_remainingSec -= secPassed;
-            if (m_remainingSec <= 0) {
-                m_remainingSec = 0;
-                m_running = false;
-                m_finished = true;
-                AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
-            }
-        } else { // TARGET TIME MODE
-            SYSTEMTIME st;
-            GetLocalTime(&st);
-            int nowSec = st.wHour * 3600 + st.wMinute * 60 + st.wSecond;
-
-            int targetH = 17, targetM = 30;
-            swscanf_s(targetTimeInputStr.c_str(), L"%d:%d", &targetH, &targetM);
-            int targetSec = targetH * 3600 + targetM * 60;
-
-            int diff = targetSec - nowSec;
-            if (diff < 0) diff += 86400; // Next day fallback
-
-            m_remainingSec = diff;
-            if (m_remainingSec <= 0) {
-                m_remainingSec = 0;
-                m_running = false;
-                m_finished = true;
-                AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
-            }
+        m_remainingSec -= secPassed;
+        if (m_remainingSec <= 0) {
+            m_remainingSec = 0;
+            m_running = false;
+            m_finished = true;
+            AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
         }
     }
 }
@@ -123,22 +102,44 @@ bool TimerTool::OnLButtonDown(int x, int y) {
         }
     }
 
-    // Input Box Click: x [15, 125], y [105, 135]
-    if (x >= 15 && x <= 125 && y >= 105 && y <= 135) {
-        activeInputIndex = 0;
-        return true;
-    } else {
-        activeInputIndex = -1;
+    if (!m_running) {
+        // Quick Presets Row: y [65, 95]
+        if (y >= 65 && y <= 95) {
+            if (x >= 15 && x <= 85) { inputMins += 1; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +1dk
+            if (x >= 95 && x <= 165) { inputMins += 5; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +5dk
+            if (x >= 175 && x <= 245) { inputMins += 15; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +15dk
+            if (x >= 255 && x <= 325) { inputHours += 1; return true; } // +1sa
+        }
+
+        // Stepper Row: y [102, 135]
+        if (y >= 102 && y <= 135) {
+            // Hour -
+            if (x >= 15 && x <= 45) { if (inputHours > 0) inputHours--; return true; }
+            // Hour +
+            if (x >= 95 && x <= 125) { inputHours++; return true; }
+            // Min -
+            if (x >= 140 && x <= 170) { if (inputMins > 0) inputMins--; return true; }
+            // Min +
+            if (x >= 220 && x <= 250) { inputMins = (inputMins + 1) % 60; return true; }
+        }
     }
 
-    // Start/Pause Button: x [135, 225], y [105, 135]
-    if (x >= 135 && x <= 225 && y >= 105 && y <= 135) {
+    // Start/Pause Button: x [15, 205], y [145, 175]
+    if (x >= 15 && x <= 205 && y >= 145 && y <= 175) {
         if (!m_running) {
             if (m_mode == TIMER_MODE_DURATION) {
-                int mins = _wtoi(durationInputStr.c_str());
-                if (mins <= 0) mins = 1;
-                m_remainingSec = mins * 60;
+                m_remainingSec = inputHours * 3600 + inputMins * 60;
+                if (m_remainingSec <= 0) m_remainingSec = 60;
                 m_initialSec = m_remainingSec;
+            } else {
+                SYSTEMTIME st;
+                GetLocalTime(&st);
+                int targetSec = inputHours * 3600 + inputMins * 60;
+                int currentSec = st.wHour * 3600 + st.wMinute * 60 + st.wSecond;
+                int diff = targetSec - currentSec;
+                if (diff <= 0) diff += 86400; // Next day
+                m_remainingSec = diff;
+                m_initialSec = diff;
             }
             m_finished = false;
             m_running = true;
@@ -148,13 +149,12 @@ bool TimerTool::OnLButtonDown(int x, int y) {
         return true;
     }
 
-    // Reset Button: x [235, 325], y [105, 135]
-    if (x >= 235 && x <= 325 && y >= 105 && y <= 135) {
+    // Reset Button: x [215, 325], y [145, 175]
+    if (x >= 215 && x <= 325 && y >= 145 && y <= 175) {
         m_running = false;
         m_finished = false;
         if (m_mode == TIMER_MODE_DURATION) {
-            int mins = _wtoi(durationInputStr.c_str());
-            m_remainingSec = mins * 60;
+            m_remainingSec = inputHours * 3600 + inputMins * 60;
         }
         return true;
     }
@@ -162,17 +162,7 @@ bool TimerTool::OnLButtonDown(int x, int y) {
     return false;
 }
 
-void TimerTool::OnCharInput(wchar_t ch) {
-    if (activeInputIndex == 0) {
-        if (ch == VK_BACK) {
-            if (m_mode == TIMER_MODE_DURATION && !durationInputStr.empty()) durationInputStr.pop_back();
-            if (m_mode == TIMER_MODE_TARGET_TIME && !targetTimeInputStr.empty()) targetTimeInputStr.pop_back();
-        } else if ((ch >= L'0' && ch <= L'9') || (m_mode == TIMER_MODE_TARGET_TIME && ch == L':')) {
-            if (m_mode == TIMER_MODE_DURATION && durationInputStr.length() < 4) durationInputStr += ch;
-            if (m_mode == TIMER_MODE_TARGET_TIME && targetTimeInputStr.length() < 5) targetTimeInputStr += ch;
-        }
-    }
-}
+void TimerTool::OnCharInput(wchar_t ch) {}
 
 // ----------------------------------------------------
 // Pomodoro Implementation

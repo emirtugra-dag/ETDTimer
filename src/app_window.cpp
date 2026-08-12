@@ -214,13 +214,34 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
 
+    case WM_MOUSEWHEEL: {
+        short delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        for (auto& tool : m_tools) {
+            if (tool->GetType() == TOOL_STOPWATCH) {
+                StopwatchTool* sw = (StopwatchTool*)tool.get();
+                sw->ScrollLaps(delta < 0 ? 1 : -1);
+            }
+        }
+        InvalidateRect(m_hwnd, NULL, FALSE);
+        return 0;
+    }
+
     case WM_LBUTTONDOWN: {
         int x = LOWORD(lParam);
         int y = HIWORD(lParam);
 
+        // If Tool Menu is open and user clicks outside it, close menu immediately
+        if (m_menuOpen) {
+            if (x < m_windowWidth - 170 || x > m_windowWidth - 10 || y < 45 || y > 145) {
+                m_menuOpen = false;
+                RecalculateLayout();
+                // Continue to process click
+            }
+        }
+
         // Settings Modal Interaction
         if (m_settingsOpen) {
-            int modalW = 310, modalH = 360;
+            int modalW = 320, modalH = 390;
             int modalX = (m_windowWidth - modalW) / 2;
             int modalY = (m_windowHeight - modalH) / 2;
 
@@ -232,7 +253,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 return 0;
             }
 
-            int curY = modalY + 45;
+            int curY = modalY + 42;
             AppSettings& s = SettingsManager::Instance().Get();
 
             // Language switch
@@ -241,7 +262,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
 
             // Theme switch
             if (y >= curY && y <= curY + 28) {
@@ -249,7 +270,15 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
+
+            // UI Scale switch
+            if (y >= curY && y <= curY + 28) {
+                s.uiScale = (s.uiScale == 100) ? 120 : ((s.uiScale == 120) ? 85 : 100);
+                RecalculateLayout();
+                return 0;
+            }
+            curY += 28;
 
             // Show Seconds Clock
             if (y >= curY && y <= curY + 28) {
@@ -257,7 +286,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
 
             // Show Seconds Timer
             if (y >= curY && y <= curY + 28) {
@@ -265,7 +294,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
 
             // Force Always on Top
             if (y >= curY && y <= curY + 28) {
@@ -276,7 +305,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
 
             // Autostart
             if (y >= curY && y <= curY + 28) {
@@ -285,7 +314,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
 
             // Restore previous tools
             if (y >= curY && y <= curY + 28) {
@@ -293,7 +322,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 InvalidateRect(m_hwnd, NULL, FALSE);
                 return 0;
             }
-            curY += 32;
+            curY += 28;
 
             // Legal notice popup
             if (y >= curY && y <= curY + 32) {

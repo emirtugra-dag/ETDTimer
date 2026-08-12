@@ -162,8 +162,11 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         int lapY = y + 115;
         const auto& laps = sw->GetLaps();
         int maxLapsToDraw = (height - 120) / 22;
-        int startIdx = (int)laps.size() > maxLapsToDraw ? (int)laps.size() - maxLapsToDraw : 0;
-        for (int i = startIdx; i < (int)laps.size(); i++) {
+        int scrollOff = sw->GetScrollOffset();
+        int startIdx = std::min((int)laps.size(), scrollOff);
+        int endIdx = std::min((int)laps.size(), startIdx + maxLapsToDraw);
+
+        for (int i = startIdx; i < endIdx; i++) {
             g.DrawString(laps[i].formattedTime.c_str(), -1, &smallFont, PointF((REAL)x + 15, (REAL)lapY), m_textDimBrush);
             lapY += 22;
         }
@@ -189,27 +192,38 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
             if (hrs > 0) swprintf_s(buf, 64, L"%02d:%02d:%02d", hrs, mins, secs);
             else swprintf_s(buf, 64, L"%02d:%02d", mins, secs);
         } else {
-            swprintf_s(buf, 64, L"%02d:%02d", hrs * 60 + mins, secs);
+            if (hrs > 0) swprintf_s(buf, 64, L"%02d sa %02d dk", hrs, mins);
+            else swprintf_s(buf, 64, L"%02d dk", mins);
         }
 
-        g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 60), m_textBrush);
+        g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 58), m_textBrush);
 
-        // Input Box & Start/Pause
-        RectF inputBox((REAL)x + 15, (REAL)y + 105, 110, 30);
-        g.FillRectangle(m_buttonBrush, inputBox);
-        Pen focusPen(Color(255, 0, 173, 181), 2.0f);
-        g.DrawRectangle(tm->activeInputIndex == 0 ? &focusPen : m_borderPen, inputBox);
-        const wchar_t* valStr = (tm->GetMode() == TIMER_MODE_DURATION) ? tm->durationInputStr.c_str() : tm->targetTimeInputStr.c_str();
-        g.DrawString(valStr, -1, &bodyFont, PointF((REAL)x + 22, (REAL)y + 108), m_textBrush);
+        if (!tm->IsRunning()) {
+            // Quick Presets Row: [+1dk] [+5dk] [+15dk] [+1sa]
+            RectF p1((REAL)x + 15, (REAL)y + 98, 70, 24);
+            RectF p2((REAL)x + 95, (REAL)y + 98, 70, 24);
+            RectF p3((REAL)x + 175, (REAL)y + 98, 70, 24);
+            RectF p4((REAL)x + 255, (REAL)y + 98, 70, 24);
+            g.FillRectangle(m_buttonBrush, p1); g.DrawRectangle(m_borderPen, p1);
+            g.FillRectangle(m_buttonBrush, p2); g.DrawRectangle(m_borderPen, p2);
+            g.FillRectangle(m_buttonBrush, p3); g.DrawRectangle(m_borderPen, p3);
+            g.FillRectangle(m_buttonBrush, p4); g.DrawRectangle(m_borderPen, p4);
 
-        RectF startBtn((REAL)x + 135, (REAL)y + 105, 90, 30);
-        RectF resetBtn((REAL)x + 235, (REAL)y + 105, 90, 30);
+            g.DrawString(L"+1dk", -1, &smallFont, PointF((REAL)x + 32, (REAL)y + 101), m_textBrush);
+            g.DrawString(L"+5dk", -1, &smallFont, PointF((REAL)x + 112, (REAL)y + 101), m_textBrush);
+            g.DrawString(L"+15dk", -1, &smallFont, PointF((REAL)x + 188, (REAL)y + 101), m_textBrush);
+            g.DrawString(L"+1sa", -1, &smallFont, PointF((REAL)x + 272, (REAL)y + 101), m_textBrush);
+        }
+
+        // Start/Pause & Reset Buttons
+        RectF startBtn((REAL)x + 15, (REAL)y + 145, 190, 30);
+        RectF resetBtn((REAL)x + 215, (REAL)y + 145, 110, 30);
         g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
         g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
 
         const wchar_t* stTxt = tm->IsRunning() ? SettingsManager::Instance().Text("PAUSE") : SettingsManager::Instance().Text("START");
-        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 145, (REAL)y + 110), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 110), m_textBrush);
+        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 150), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 150), m_textBrush);
 
     } else if (card->GetType() == TOOL_POMODORO) {
         PomodoroTool* pm = (PomodoroTool*)card;
@@ -235,10 +249,10 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(timeBuf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 50), m_textBrush);
 
         // 4 Input parameter boxes: Work min, Break min, Target hrs, Num breaks
-        RectF box1((REAL)x + 15, (REAL)y + 95, 70, 26);
-        RectF box2((REAL)x + 95, (REAL)y + 95, 70, 26);
-        RectF box3((REAL)x + 175, (REAL)y + 95, 70, 26);
-        RectF box4((REAL)x + 255, (REAL)y + 95, 70, 26);
+        RectF box1((REAL)x + 15, (REAL)y + 95, 68, 26);
+        RectF box2((REAL)x + 95, (REAL)y + 95, 68, 26);
+        RectF box3((REAL)x + 175, (REAL)y + 95, 68, 26);
+        RectF box4((REAL)x + 255, (REAL)y + 95, 68, 26);
 
         g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(m_borderPen, box1);
         g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(m_borderPen, box2);
@@ -250,10 +264,11 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(pm->targetHoursStr.c_str(), -1, &smallFont, PointF((REAL)x + 182, (REAL)y + 98), m_textBrush);
         g.DrawString(pm->numBreaksStr.c_str(), -1, &smallFont, PointF((REAL)x + 262, (REAL)y + 98), m_textBrush);
 
-        g.DrawString(SettingsManager::Instance().Text("WORK_MIN"), -1, &smallFont, PointF((REAL)x + 15, (REAL)y + 125), m_textDimBrush);
-        g.DrawString(SettingsManager::Instance().Text("BREAK_MIN"), -1, &smallFont, PointF((REAL)x + 95, (REAL)y + 125), m_textDimBrush);
-        g.DrawString(SettingsManager::Instance().Text("TARGET_HOURS"), -1, &smallFont, PointF((REAL)x + 175, (REAL)y + 125), m_textDimBrush);
-        g.DrawString(SettingsManager::Instance().Text("NUM_BREAKS"), -1, &smallFont, PointF((REAL)x + 255, (REAL)y + 125), m_textDimBrush);
+        Font tinyFont(L"Segoe UI", 8, FontStyleRegular, UnitPoint);
+        g.DrawString(L"Çalışma", -1, &tinyFont, PointF((REAL)x + 15, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(L"Mola", -1, &tinyFont, PointF((REAL)x + 95, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(L"Hedef (sa)", -1, &tinyFont, PointF((REAL)x + 175, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(L"Mola Sayısı", -1, &tinyFont, PointF((REAL)x + 255, (REAL)y + 125), m_textDimBrush);
 
         // Buttons: Calculate & Start, Reset
         RectF startBtn((REAL)x + 15, (REAL)y + 155, 195, 30);
@@ -292,8 +307,8 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     SolidBrush overlayBrush(Color(180, 0, 0, 0));
     g.FillRectangle(&overlayBrush, 0, 0, width, height);
 
-    int modalW = 310;
-    int modalH = 360;
+    int modalW = 320;
+    int modalH = 390;
     int modalX = (width - modalW) / 2;
     int modalY = (height - modalH) / 2;
 
@@ -309,46 +324,51 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     // Close X
     g.DrawString(L"✕", -1, &titleFont, PointF((REAL)modalX + modalW - 25, (REAL)modalY + 10), m_textDimBrush);
 
-    int curY = modalY + 45;
+    int curY = modalY + 42;
     AppSettings& s = SettingsManager::Instance().Get();
 
     // 1. Language Toggle
     g.DrawString(SettingsManager::Instance().Text("LANGUAGE"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.lang == LANG_TR ? L"[Türkçe]" : L"[English]", -1, &bodyFont, PointF((REAL)modalX + 220, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.lang == LANG_TR ? L"[Türkçe]" : L"[English]", -1, &bodyFont, PointF((REAL)modalX + 210, (REAL)curY), m_accentBrush);
+    curY += 28;
 
     // 2. Theme Toggle
     g.DrawString(SettingsManager::Instance().Text("THEME"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.theme == THEME_DARK ? SettingsManager::Instance().Text("THEME_DARK") : SettingsManager::Instance().Text("THEME_LIGHT"), -1, &bodyFont, PointF((REAL)modalX + 220, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.theme == THEME_DARK ? SettingsManager::Instance().Text("THEME_DARK") : SettingsManager::Instance().Text("THEME_LIGHT"), -1, &bodyFont, PointF((REAL)modalX + 210, (REAL)curY), m_accentBrush);
+    curY += 28;
 
-    // 3. Show Seconds in Clock
+    // 3. UI Scale Toggle
+    g.DrawString(SettingsManager::Instance().Text("UI_SCALE"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
+    g.DrawString(s.uiScale == 120 ? SettingsManager::Instance().Text("SCALE_120") : (s.uiScale == 85 ? SettingsManager::Instance().Text("SCALE_85") : SettingsManager::Instance().Text("SCALE_100")), -1, &bodyFont, PointF((REAL)modalX + 210, (REAL)curY), m_accentBrush);
+    curY += 28;
+
+    // 4. Show Seconds in Clock
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_CLOCK"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.showSecondsInClock ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.showSecondsInClock ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
+    curY += 28;
 
-    // 4. Show Seconds in Timer
+    // 5. Show Seconds in Timer
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_TIMER"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.showSecondsInTimer ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.showSecondsInTimer ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
+    curY += 28;
 
-    // 5. Force Always on Top
+    // 6. Force Always on Top
     g.DrawString(SettingsManager::Instance().Text("FORCE_TOPMOST"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.forceAlwaysOnTop ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.forceAlwaysOnTop ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
+    curY += 28;
 
-    // 6. Autostart
+    // 7. Autostart
     g.DrawString(SettingsManager::Instance().Text("AUTOSTART"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.autoStart ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.autoStart ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
+    curY += 28;
 
-    // 7. Restore Previous Tools
+    // 8. Restore Previous Tools
     g.DrawString(SettingsManager::Instance().Text("RESTORE_TOOLS"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
-    g.DrawString(s.restorePreviousTools ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 265, (REAL)curY), m_accentBrush);
-    curY += 32;
+    g.DrawString(s.restorePreviousTools ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
+    curY += 28;
 
-    // 8. Legal Disclaimer Info Button
-    RectF legalBtn((REAL)modalX + 15, (REAL)curY + 5, 280, 28);
+    // 9. Legal Disclaimer Info Button
+    RectF legalBtn((REAL)modalX + 15, (REAL)curY + 5, 290, 28);
     g.FillRectangle(m_buttonBrush, legalBtn); g.DrawRectangle(m_borderPen, legalBtn);
-    g.DrawString(SettingsManager::Instance().Text("LEGAL_NOTICE"), -1, &bodyFont, PointF((REAL)modalX + 95, (REAL)curY + 10), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("LEGAL_NOTICE"), -1, &bodyFont, PointF((REAL)modalX + 100, (REAL)curY + 10), m_textBrush);
 }
