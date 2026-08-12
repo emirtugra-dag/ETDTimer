@@ -1,0 +1,16 @@
+# Build outputs
+*.exe
+*.o
+*.res
+*.log
+err.txt
+
+# Local configuration & AppData
+config.ini
+*.tmp
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.suo
+*.user
