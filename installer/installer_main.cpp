@@ -69,17 +69,37 @@ void ExecuteInstallation(HWND hwnd) {
     GetModuleFileNameW(NULL, currentExePath, MAX_PATH);
     std::wstring currentDir = currentExePath;
     size_t pos = currentDir.find_last_of(L"\\/");
-    if (pos != std::wstring::npos) {
-        currentDir = currentDir.substr(0, pos);
-    }
+    if (pos != std::wstring::npos) currentDir = currentDir.substr(0, pos);
 
     std::wstring targetExe = std::wstring(g_InstallDir) + L"\\ETDTimer.exe";
-    std::wstring srcExe = currentDir + L"\\ETDTimer.exe";
 
-    if (GetFileAttributesW(srcExe.c_str()) != INVALID_FILE_ATTRIBUTES) {
-        CopyFileW(srcExe.c_str(), targetExe.c_str(), FALSE);
-    } else {
-        CopyFileW(currentExePath, targetExe.c_str(), FALSE);
+    // 1. Try to extract embedded payload resource (ID 102, Type 256)
+    HMODULE hModule = GetModuleHandleW(NULL);
+    HRSRC hRes = FindResourceW(hModule, MAKEINTRESOURCEW(102), MAKEINTRESOURCEW(256));
+    bool extracted = false;
+
+    if (hRes) {
+        HGLOBAL hMem = LoadResource(hModule, hRes);
+        DWORD resSize = SizeofResource(hModule, hRes);
+        void* pData = LockResource(hMem);
+
+        if (pData && resSize > 0) {
+            HANDLE hFile = CreateFileW(targetExe.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (hFile != INVALID_HANDLE_VALUE) {
+                DWORD written = 0;
+                WriteFile(hFile, pData, resSize, &written, NULL);
+                CloseHandle(hFile);
+                extracted = true;
+            }
+        }
+    }
+
+    // 2. Fallback to copying next to setup if resource is missing
+    if (!extracted) {
+        std::wstring srcExe = currentDir + L"\\ETDTimer.exe";
+        if (GetFileAttributesW(srcExe.c_str()) != INVALID_FILE_ATTRIBUTES) {
+            CopyFileW(srcExe.c_str(), targetExe.c_str(), FALSE);
+        }
     }
 
     std::wstring srcLogo = currentDir + L"\\etdtimer.png";

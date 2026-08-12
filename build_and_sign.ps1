@@ -16,12 +16,14 @@ Write-Host "========================================" -ForegroundColor Cyan
 
 Set-Location "c:\Users\vboxuser\Desktop\ETDTimer"
 
-# 1. Compile Resource File
-Write-Host "[1/4] Compiling Windows Resources..." -ForegroundColor Yellow
-& $Windres "res/resource.rc" -O coff -o "res/resource.o"
+# 1. Compile App Resource File (Icon + Manifest)
+Write-Host "[1/5] Compiling Application Resources..." -ForegroundColor Yellow
+"101 ICON ""res/app.ico""" | Out-File -FilePath "res/app_res.rc" -Encoding ascii
+"1 24 ""res/app.manifest""" | Out-File -FilePath "res/app_res.rc" -Append -Encoding ascii
+& $Windres "res/app_res.rc" -O coff -o "res/app_res.o"
 
 # 2. Compile ETDTimer Application
-Write-Host "[2/4] Compiling ETDTimer.exe..." -ForegroundColor Yellow
+Write-Host "[2/5] Compiling ETDTimer.exe..." -ForegroundColor Yellow
 $appSources = @(
     "src/main.cpp",
     "src/app_window.cpp",
@@ -29,7 +31,7 @@ $appSources = @(
     "src/ui_renderer.cpp",
     "src/settings.cpp",
     "src/audio.cpp",
-    "res/resource.o"
+    "res/app_res.o"
 )
 & $Compiler -O3 -mwindows -municode -std=c++20 $appSources -lgdiplus -lgdi32 -luser32 -lwinmm -lole32 -lshlwapi -lcomctl32 -static -s -o "ETDTimer.exe"
 
@@ -40,11 +42,18 @@ if (Test-Path "ETDTimer.exe") {
     Write-Error "Failed to build ETDTimer.exe"
 }
 
-# 3. Compile Installer Wizard
-Write-Host "[3/4] Compiling ETDTimerSetup.exe..." -ForegroundColor Yellow
+# 3. Compile Setup Resource File (Icon + Manifest + Embedded ETDTimer.exe Payload)
+Write-Host "[3/5] Packing ETDTimer.exe into Setup Resources..." -ForegroundColor Yellow
+"101 ICON ""res/app.ico""" | Out-File -FilePath "res/setup_res.rc" -Encoding ascii
+"1 24 ""res/app.manifest""" | Out-File -FilePath "res/setup_res.rc" -Append -Encoding ascii
+"102 256 ""ETDTimer.exe""" | Out-File -FilePath "res/setup_res.rc" -Append -Encoding ascii
+& $Windres "res/setup_res.rc" -O coff -o "res/setup_res.o"
+
+# 4. Compile Installer Wizard
+Write-Host "[4/5] Compiling ETDTimerSetup.exe..." -ForegroundColor Yellow
 $setupSources = @(
     "installer/installer_main.cpp",
-    "res/resource.o"
+    "res/setup_res.o"
 )
 & $Compiler -O3 -mwindows -municode -std=c++20 $setupSources -luser32 -lgdi32 -lole32 -lshell32 -lshlwapi -luuid -static -s -o "ETDTimerSetup.exe"
 
@@ -55,8 +64,8 @@ if (Test-Path "ETDTimerSetup.exe") {
     Write-Error "Failed to build ETDTimerSetup.exe"
 }
 
-# 4. Code Signing Executables
-Write-Host "[4/4] Signing Executables with Self-Signed Certificate..." -ForegroundColor Yellow
+# 5. Code Signing Executables
+Write-Host "[5/5] Signing Executables with Self-Signed Certificate..." -ForegroundColor Yellow
 $certSubject = "CN=Emir Tugra Dag Code Signing, O=ETDTimer"
 $cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert | Where-Object { $_.Subject -match "Emir Tugra Dag" } | Select-Object -First 1
 
