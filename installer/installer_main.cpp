@@ -31,12 +31,14 @@ static bool g_LaunchAfterSetup = true;
 static int g_HoverButton = -1;
 
 const wchar_t* g_SetupLegalNoticeTR = 
-    L"YASAL UYARI VE SORUMLULUK REDDİ:\n\n"
-    L"Proje yapımcısının, Emir Tuğra Dağ, uygulamadaki herhangi bir şeyi düzeltme, uygulamaya yeni özellik getirme veya güncelleme gibi bir sorumluluğu yok. Proje olduğu gibi sunulmakta ve olası iyi veya kötü hiç bir olayda geliştirici Emir Tuğra Dağ sorumlu olamaz. Kod tabanları MIT lisansına tabi olup projenin adı ve logolarının hakları Emir Tuğra Dağ'da saklıdır ve izinsiz kullanılamaz.";
+    L"YASAL BİLDİRİM VE SORUMLULUK REDDİ:\n\n"
+    L"Bu yazılım 'olduğu gibi' (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz.\n\n"
+    L"Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, markası ve logo hakları Emir Tuğra Dağ'a aittir.";
 
 const wchar_t* g_SetupLegalNoticeEN = 
     L"LEGAL DISCLAIMER & NOTICE:\n\n"
-    L"The project creator, Emir Tuğra Dağ, has no responsibility to fix anything in the application, bring new features, or issue updates. The project is provided 'as is' and developer Emir Tuğra Dağ cannot be held responsible for any outcome, good or bad. Codebases are subject to the MIT license; all rights to the project name and logos are reserved by Emir Tuğra Dağ and cannot be used without permission.";
+    L"This software is provided 'as is', without warranty of any kind. The developer, Emir Tuğra Dağ, shall not be held liable for any claims, damages, or issues arising from the use of this software.\n\n"
+    L"The developer assumes no obligation to provide updates or new features. Codebase is under the MIT License; all rights to the project name and logos are reserved by Emir Tuğra Dağ.";
 
 bool CreateShortcut(const wchar_t* targetPath, const wchar_t* shortcutPath, const wchar_t* description) {
     HRESULT hr = CoInitialize(NULL);

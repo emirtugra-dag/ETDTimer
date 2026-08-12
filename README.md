@@ -60,6 +60,6 @@ Bu işlem:
 
 ## ⚖️ Yasal Bildirim & Lisans / Legal Disclaimer & License
 
-Proje yapımcısının, Emir Tuğra Dağ, uygulamadaki herhangi bir şeyi düzeltme, uygulamaya yeni özellik getirme veya güncelleme gibi bir sorumluluğu yok. Proje olduğu gibi sunulmakta ve olası iyi veya kötü hiç bir olayda geliştirici Emir Tuğra Dağ sorumlu olamaz. Kod tabanları MIT lisansına tabi olup projenin adı ve logolarının hakları Emir Tuğra Dağ'da saklıdır ve izinsiz kullanılamaz.
+Bu yazılım 'olduğu gibi' (As-Is) sunulmaktadır. Geliştirici **Emir Tuğra Dağ**, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, markası ve logo hakları Emir Tuğra Dağ'a aittir.
 
 Distributed under the **MIT License**. Copyright (c) 2026 **Emir Tuğra Dağ**.
