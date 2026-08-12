@@ -5,7 +5,6 @@
 #include <shobjidl.h>
 #include <string>
 #include <vector>
-#include <fstream>
 
 enum SetupStep {
     STEP_LANG_SELECT = 0,
@@ -28,19 +27,17 @@ static bool g_CreateDesktopShortcut = true;
 static bool g_StartWithWindows = false;
 static bool g_LaunchAfterSetup = true;
 
+// Hover state tracking
+static int g_HoverButton = -1;
+
 const wchar_t* g_SetupLegalNoticeTR = 
-    L"ETDTimer Kurulum Sihirbazına Hoş Geldiniz.\n\n"
-    L"Yasal Uyarı / Sorumluluk Reddi:\n"
-    L"Proje yapımcısının, Emir Tuğra Dağ, uygulamadaki herhangi bir şeyi düzeltme, uygulamaya yeni özellik getirme veya güncelleme gibi bir sorumluluğu yok. Proje olduğu gibi sunulmakta ve olası iyi veya kötü hiç bir olayda geliştirici Emir Tuğra Dağ sorumlu olamaz. Kod tabanları MIT lisansına tabi olup projenin adı ve logolarının hakları Emir Tuğra Dağ'da saklıdır ve izinsiz kullanılamaz.\n\n"
-    L"Devam etmek için İleri'ye tıklayın.";
+    L"YASAL UYARI VE SORUMLULUK REDDİ:\n\n"
+    L"Proje yapımcısının, Emir Tuğra Dağ, uygulamadaki herhangi bir şeyi düzeltme, uygulamaya yeni özellik getirme veya güncelleme gibi bir sorumluluğu yok. Proje olduğu gibi sunulmakta ve olası iyi veya kötü hiç bir olayda geliştirici Emir Tuğra Dağ sorumlu olamaz. Kod tabanları MIT lisansına tabi olup projenin adı ve logolarının hakları Emir Tuğra Dağ'da saklıdır ve izinsiz kullanılamaz.";
 
 const wchar_t* g_SetupLegalNoticeEN = 
-    L"Welcome to the ETDTimer Setup Wizard.\n\n"
-    L"Legal Disclaimer:\n"
-    L"The project creator, Emir Tuğra Dağ, has no responsibility to fix anything in the application, bring new features, or issue updates. The project is provided 'as is' and developer Emir Tuğra Dağ cannot be held responsible for any outcome, good or bad. Codebases are subject to the MIT license; all rights to the project name and logos are reserved by Emir Tuğra Dağ and cannot be used without permission.\n\n"
-    L"Click Next to continue.";
+    L"LEGAL DISCLAIMER & NOTICE:\n\n"
+    L"The project creator, Emir Tuğra Dağ, has no responsibility to fix anything in the application, bring new features, or issue updates. The project is provided 'as is' and developer Emir Tuğra Dağ cannot be held responsible for any outcome, good or bad. Codebases are subject to the MIT license; all rights to the project name and logos are reserved by Emir Tuğra Dağ and cannot be used without permission.";
 
-// Helper to create a Windows shortcut (.lnk)
 bool CreateShortcut(const wchar_t* targetPath, const wchar_t* shortcutPath, const wchar_t* description) {
     HRESULT hr = CoInitialize(NULL);
     bool success = false;
@@ -63,11 +60,6 @@ bool CreateShortcut(const wchar_t* targetPath, const wchar_t* shortcutPath, cons
     return success;
 }
 
-// Copy file helper
-bool CopyFileHelper(const std::wstring& src, const std::wstring& dest) {
-    return CopyFileW(src.c_str(), dest.c_str(), FALSE) != 0;
-}
-
 void ExecuteInstallation(HWND hwnd) {
     CreateDirectoryW(g_InstallDir, NULL);
 
@@ -82,17 +74,16 @@ void ExecuteInstallation(HWND hwnd) {
     std::wstring targetExe = std::wstring(g_InstallDir) + L"\\ETDTimer.exe";
     std::wstring srcExe = currentDir + L"\\ETDTimer.exe";
 
-    if (!CopyFileHelper(srcExe, targetExe)) {
-        // Fallback if installer is running from same directory
+    if (GetFileAttributesW(srcExe.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        CopyFileW(srcExe.c_str(), targetExe.c_str(), FALSE);
+    } else {
         CopyFileW(currentExePath, targetExe.c_str(), FALSE);
     }
 
-    // Copy PNG logo if available
     std::wstring srcLogo = currentDir + L"\\etdtimer.png";
     std::wstring destLogo = std::wstring(g_InstallDir) + L"\\etdtimer.png";
     CopyFileW(srcLogo.c_str(), destLogo.c_str(), FALSE);
 
-    // Create Desktop Shortcut
     if (g_CreateDesktopShortcut) {
         wchar_t desktopPath[MAX_PATH];
         SHGetFolderPathW(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, desktopPath);
@@ -100,7 +91,6 @@ void ExecuteInstallation(HWND hwnd) {
         CreateShortcut(targetExe.c_str(), shortcutFile.c_str(), L"ETDTimer Floating Clock & Tools");
     }
 
-    // Autostart Registry
     if (g_StartWithWindows) {
         HKEY hKey;
         if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) {
@@ -110,7 +100,6 @@ void ExecuteInstallation(HWND hwnd) {
         }
     }
 
-    // Add/Remove Programs Registry Entry
     HKEY hUnKey;
     if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ETDTimer", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hUnKey, NULL) == ERROR_SUCCESS) {
         std::wstring dispName = L"ETDTimer";
@@ -123,6 +112,36 @@ void ExecuteInstallation(HWND hwnd) {
     }
 }
 
+// Button drawing helper
+void DrawStyledButton(HDC hdc, RECT rect, const wchar_t* text, bool isHover, bool isPrimary, bool isSelected = false) {
+    COLORREF bgCol = isSelected ? RGB(0, 173, 181) : (isPrimary ? (isHover ? RGB(0, 195, 205) : RGB(0, 173, 181)) : (isHover ? RGB(230, 235, 242) : RGB(245, 247, 250)));
+    COLORREF textCol = (isPrimary || isSelected) ? RGB(255, 255, 255) : RGB(30, 35, 45);
+    COLORREF borderCol = isSelected ? RGB(0, 150, 160) : (isPrimary ? RGB(0, 150, 160) : RGB(200, 205, 215));
+
+    HBRUSH brush = CreateSolidBrush(bgCol);
+    HPEN pen = CreatePen(PS_SOLID, 1, borderCol);
+    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+    HPEN oldPen = (HPEN)SelectObject(hdc, pen);
+
+    RoundRect(hdc, rect.left, rect.top, rect.right, rect.bottom, 6, 6);
+
+    SelectObject(hdc, oldBrush);
+    SelectObject(hdc, oldPen);
+    DeleteObject(brush);
+    DeleteObject(pen);
+
+    SetBkMode(hdc, TRANSPARENT);
+    SetTextColor(hdc, textCol);
+
+    HFONT hFont = CreateFontW(15, 0, 0, 0, (isPrimary || isSelected) ? FW_BOLD : FW_SEMIBOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
+    HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
+
+    DrawTextW(hdc, text, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+    SelectObject(hdc, oldFont);
+    DeleteObject(hFont);
+}
+
 LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
     case WM_CREATE: {
@@ -132,63 +151,206 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         return 0;
     }
 
+    case WM_MOUSEMOVE: {
+        TRACKMOUSEEVENT tme = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hwnd, 0 };
+        TrackMouseEvent(&tme);
+
+        int x = LOWORD(lParam);
+        int y = HIWORD(lParam);
+        int oldHover = g_HoverButton;
+        g_HoverButton = -1;
+
+        if (y >= 310 && y <= 350) {
+            if (x >= 20 && x <= 110) g_HoverButton = 10; // Back / Cancel
+            if (x >= 390 && x <= 490) g_HoverButton = 11; // Next / Install / Finish
+        } else if (g_CurrentStep == STEP_LANG_SELECT && y >= 140 && y <= 210) {
+            if (x >= 40 && x <= 240) g_HoverButton = 1; // TR Button
+            if (x >= 270 && x <= 470) g_HoverButton = 2; // EN Button
+        }
+
+        if (oldHover != g_HoverButton) {
+            InvalidateRect(hwnd, NULL, FALSE);
+        }
+        return 0;
+    }
+
+    case WM_MOUSELEAVE:
+        if (g_HoverButton != -1) {
+            g_HoverButton = -1;
+            InvalidateRect(hwnd, NULL, FALSE);
+        }
+        return 0;
+
     case WM_PAINT: {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
         RECT rect;
         GetClientRect(hwnd, &rect);
 
-        // Header Background
-        HBRUSH headerBrush = CreateSolidBrush(RGB(20, 20, 25));
-        RECT headerRect = {0, 0, rect.right, 60};
-        FillRect(hdc, &headerRect, headerBrush);
+        // Double buffer
+        HDC memDC = CreateCompatibleDC(hdc);
+        HBITMAP memBmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+        HBITMAP oldBmp = (HBITMAP)SelectObject(memDC, memBmp);
+
+        // Background
+        HBRUSH bgBrush = CreateSolidBrush(RGB(255, 255, 255));
+        FillRect(memDC, &rect, bgBrush);
+        DeleteObject(bgBrush);
+
+        // Header Banner (#1E1E24)
+        HBRUSH headerBrush = CreateSolidBrush(RGB(24, 24, 30));
+        RECT headerRect = {0, 0, rect.right, 70};
+        FillRect(memDC, &headerRect, headerBrush);
         DeleteObject(headerBrush);
 
-        SetBkMode(hdc, TRANSPARENT);
-        SetTextColor(hdc, RGB(0, 173, 181));
-        HFONT hFontTitle = CreateFontW(22, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
-        HFONT hOldFont = (HFONT)SelectObject(hdc, hFontTitle);
+        SetBkMode(memDC, TRANSPARENT);
+        SetTextColor(memDC, RGB(0, 173, 181));
+        HFONT hFontTitle = CreateFontW(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
+        HFONT oldFont = (HFONT)SelectObject(memDC, hFontTitle);
 
-        TextOutW(hdc, 20, 15, L"ETDTimer Setup", 14);
+        TextOutW(memDC, 25, 12, L"ETDTimer Kurulum Sihirbazı", 26);
 
-        SelectObject(hdc, hOldFont);
+        SelectObject(memDC, oldFont);
         DeleteObject(hFontTitle);
 
-        // Body Content
-        SetTextColor(hdc, RGB(30, 30, 30));
-        HFONT hFontBody = CreateFontW(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
-        SelectObject(hdc, hFontBody);
+        SetTextColor(memDC, RGB(160, 165, 175));
+        HFONT hFontSub = CreateFontW(13, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
+        SelectObject(memDC, hFontSub);
+
+        const wchar_t* subTitle = L"";
+        if (g_CurrentStep == STEP_LANG_SELECT) subTitle = (g_SetupLang == SETUP_TR) ? L"Kurulum Dili Seçimi / Select Setup Language" : L"Select Setup Language / Kurulum Dili Seçimi";
+        else if (g_CurrentStep == STEP_LICENSE) subTitle = (g_SetupLang == SETUP_TR) ? L"Yasal Uyarı ve Lisans Sözleşmesi" : L"Legal Disclaimer & License Agreement";
+        else if (g_CurrentStep == STEP_FOLDER) subTitle = (g_SetupLang == SETUP_TR) ? L"Kurulum Hedef Dizin Seçimi" : L"Select Destination Folder";
+        else if (g_CurrentStep == STEP_OPTIONS) subTitle = (g_SetupLang == SETUP_TR) ? L"Kısayol ve Başlangıç Seçenekleri" : L"Shortcuts & Startup Options";
+        else if (g_CurrentStep == STEP_INSTALLING) subTitle = (g_SetupLang == SETUP_TR) ? L"Dosyalar Kopyalanıyor..." : L"Copying Files...";
+        else if (g_CurrentStep == STEP_FINISH) subTitle = (g_SetupLang == SETUP_TR) ? L"Kurulum Tamamlandı!" : L"Setup Completed Successfully!";
+
+        TextOutW(memDC, 25, 40, subTitle, (int)wcslen(subTitle));
+
+        SelectObject(memDC, oldFont);
+        DeleteObject(hFontSub);
+
+        // Body rendering
+        HFONT hFontBody = CreateFontW(14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
+        HFONT hFontBodyBold = CreateFontW(15, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
+        SelectObject(memDC, hFontBody);
+        SetTextColor(memDC, RGB(40, 45, 55));
 
         if (g_CurrentStep == STEP_LANG_SELECT) {
-            TextOutW(hdc, 30, 90, L"Lütfen Kurulum Dilini Seçin / Please Select Installation Language:", 66);
-            TextOutW(hdc, 50, 130, L"1. Türkçe [Tıklayın]", 20);
-            TextOutW(hdc, 50, 170, L"2. English [Click Here]", 23);
+            SelectObject(memDC, hFontBodyBold);
+            TextOutW(memDC, 30, 95, L"Lütfen Kurulum Dilini Seçiniz / Please Select Installation Language:", 67);
+            SelectObject(memDC, hFontBody);
+
+            RECT trBtnRect = {40, 140, 240, 210};
+            RECT enBtnRect = {270, 140, 470, 210};
+
+            DrawStyledButton(memDC, trBtnRect, L"🇹🇷  Türkçe", g_HoverButton == 1, false, g_SetupLang == SETUP_TR);
+            DrawStyledButton(memDC, enBtnRect, L"🇬🇧  English", g_HoverButton == 2, false, g_SetupLang == SETUP_EN);
+
         } else if (g_CurrentStep == STEP_LICENSE) {
-            RECT txtRect = {30, 80, rect.right - 30, 260};
+            RECT txtBoxRect = {30, 90, rect.right - 30, 290};
+            HBRUSH boxBg = CreateSolidBrush(RGB(248, 249, 252));
+            HPEN boxPen = CreatePen(PS_SOLID, 1, RGB(220, 225, 235));
+            SelectObject(memDC, boxBg);
+            SelectObject(memDC, boxPen);
+            RoundRect(memDC, txtBoxRect.left, txtBoxRect.top, txtBoxRect.right, txtBoxRect.bottom, 6, 6);
+            DeleteObject(boxBg);
+            DeleteObject(boxPen);
+
+            RECT innerRect = {40, 100, rect.right - 40, 280};
             const wchar_t* notice = (g_SetupLang == SETUP_TR) ? g_SetupLegalNoticeTR : g_SetupLegalNoticeEN;
-            DrawTextW(hdc, notice, -1, &txtRect, DT_WORDBREAK);
+            DrawTextW(memDC, notice, -1, &innerRect, DT_WORDBREAK);
+
         } else if (g_CurrentStep == STEP_FOLDER) {
-            TextOutW(hdc, 30, 90, (g_SetupLang == SETUP_TR) ? L"Kurulum Dizinini Seçin:" : L"Select Installation Directory:", 28);
-            TextOutW(hdc, 30, 130, g_InstallDir, (int)wcslen(g_InstallDir));
+            TextOutW(memDC, 30, 100, (g_SetupLang == SETUP_TR) ? L"Uygulama aşağıdaki dizine kurulacaktır:" : L"Application will be installed to:", 40);
+
+            RECT pathRect = {30, 135, rect.right - 30, 175};
+            HBRUSH boxBg = CreateSolidBrush(RGB(248, 249, 252));
+            HPEN boxPen = CreatePen(PS_SOLID, 1, RGB(210, 215, 225));
+            SelectObject(memDC, boxBg); SelectObject(memDC, boxPen);
+            RoundRect(memDC, pathRect.left, pathRect.top, pathRect.right, pathRect.bottom, 6, 6);
+            DeleteObject(boxBg); DeleteObject(boxPen);
+
+            RECT pathTextRect = {40, 145, rect.right - 40, 165};
+            DrawTextW(memDC, g_InstallDir, -1, &pathTextRect, DT_SINGLELINE | DT_VCENTER);
+
         } else if (g_CurrentStep == STEP_OPTIONS) {
-            TextOutW(hdc, 30, 90, (g_SetupLang == SETUP_TR) ? L"Kurulum Seçenekleri:" : L"Installation Options:", 22);
-            TextOutW(hdc, 50, 130, (g_SetupLang == SETUP_TR) ? L"[✓] Masaüstü Kısayolu Oluştur" : L"[✓] Create Desktop Shortcut", 28);
-            TextOutW(hdc, 50, 170, (g_SetupLang == SETUP_TR) ? L"[✓] Windows ile Otomatik Başlat" : L"[✓] Start Automatically with Windows", 35);
+            SelectObject(memDC, hFontBodyBold);
+            TextOutW(memDC, 30, 95, (g_SetupLang == SETUP_TR) ? L"Kurulum Seçenekleri:" : L"Installation Options:", 22);
+            SelectObject(memDC, hFontBody);
+
+            TextOutW(memDC, 65, 140, (g_SetupLang == SETUP_TR) ? L"Masaüstü Kısayolu Oluştur" : L"Create Desktop Shortcut", 28);
+            TextOutW(memDC, 65, 185, (g_SetupLang == SETUP_TR) ? L"Windows Başlangıcında Otomatik Çalıştır" : L"Start Automatically with Windows", 35);
+
+            // Draw Checkboxes
+            RECT chk1 = {35, 138, 55, 158};
+            RECT chk2 = {35, 183, 55, 203};
+
+            DrawStyledButton(memDC, chk1, g_CreateDesktopShortcut ? L"✓" : L"", false, g_CreateDesktopShortcut);
+            DrawStyledButton(memDC, chk2, g_StartWithWindows ? L"✓" : L"", false, g_StartWithWindows);
+
         } else if (g_CurrentStep == STEP_INSTALLING) {
-            TextOutW(hdc, 30, 120, (g_SetupLang == SETUP_TR) ? L"Dosyalar kopyalanıyor ve kuruluyor..." : L"Copying files and installing...", 37);
+            TextOutW(memDC, 30, 120, (g_SetupLang == SETUP_TR) ? L"Dosyalar kopyalanıyor ve kayıtlar yapılıyor..." : L"Copying files and writing registry...", 45);
+
+            RECT progRect = {30, 160, rect.right - 30, 185};
+            HBRUSH bgProg = CreateSolidBrush(RGB(230, 235, 245));
+            FillRect(memDC, &progRect, bgProg);
+            DeleteObject(bgProg);
+
+            RECT fillProg = {30, 160, rect.right - 30, 185};
+            HBRUSH fillBrush = CreateSolidBrush(RGB(0, 173, 181));
+            FillRect(memDC, &fillProg, fillBrush);
+            DeleteObject(fillBrush);
+
         } else if (g_CurrentStep == STEP_FINISH) {
-            TextOutW(hdc, 30, 100, (g_SetupLang == SETUP_TR) ? L"Kurulum Başarıyla Tamamlandı!" : L"Installation Successfully Completed!", 36);
-            TextOutW(hdc, 30, 140, (g_SetupLang == SETUP_TR) ? L"[✓] ETDTimer uygulamasını şimdi başlat" : L"[✓] Launch ETDTimer application now", 35);
+            SelectObject(memDC, hFontBodyBold);
+            SetTextColor(memDC, RGB(0, 173, 181));
+            TextOutW(memDC, 30, 100, (g_SetupLang == SETUP_TR) ? L"Kurulum Başarıyla Tamamlandı!" : L"Installation Completed Successfully!", 36);
+            SetTextColor(memDC, RGB(40, 45, 55));
+            SelectObject(memDC, hFontBody);
+
+            TextOutW(memDC, 65, 155, (g_SetupLang == SETUP_TR) ? L"ETDTimer uygulamasını şimdi başlat" : L"Launch ETDTimer application now", 35);
+
+            RECT chkFinish = {35, 153, 55, 173};
+            DrawStyledButton(memDC, chkFinish, g_LaunchAfterSetup ? L"✓" : L"", false, g_LaunchAfterSetup);
         }
 
-        SelectObject(hdc, hOldFont);
+        SelectObject(memDC, oldFont);
         DeleteObject(hFontBody);
+        DeleteObject(hFontBodyBold);
 
-        // Footer buttons bar
-        HBRUSH btnBrush = CreateSolidBrush(RGB(240, 240, 245));
-        RECT footerRect = {0, rect.bottom - 50, rect.right, rect.bottom};
-        FillRect(hdc, &footerRect, btnBrush);
-        DeleteObject(btnBrush);
+        // Footer Bar & Action Buttons
+        HBRUSH footerBrush = CreateSolidBrush(RGB(245, 247, 250));
+        HPEN footerPen = CreatePen(PS_SOLID, 1, RGB(225, 230, 238));
+        SelectObject(memDC, footerBrush); SelectObject(memDC, footerPen);
+        Rectangle(memDC, -1, rect.bottom - 60, rect.right + 1, rect.bottom + 1);
+        DeleteObject(footerBrush); DeleteObject(footerPen);
+
+        // Navigation Buttons
+        RECT btnLeftRect = {20, rect.bottom - 45, 120, rect.bottom - 15};
+        RECT btnRightRect = {380, rect.bottom - 45, 490, rect.bottom - 15};
+
+        if (g_CurrentStep == STEP_LANG_SELECT) {
+            DrawStyledButton(memDC, btnLeftRect, (g_SetupLang == SETUP_TR) ? L"İptal" : L"Cancel", g_HoverButton == 10, false);
+            DrawStyledButton(memDC, btnRightRect, (g_SetupLang == SETUP_TR) ? L"İleri >" : L"Next >", g_HoverButton == 11, true);
+        } else if (g_CurrentStep == STEP_LICENSE) {
+            DrawStyledButton(memDC, btnLeftRect, (g_SetupLang == SETUP_TR) ? L"< Geri" : L"< Back", g_HoverButton == 10, false);
+            DrawStyledButton(memDC, btnRightRect, (g_SetupLang == SETUP_TR) ? L"Kabul Et >" : L"Accept >", g_HoverButton == 11, true);
+        } else if (g_CurrentStep == STEP_FOLDER) {
+            DrawStyledButton(memDC, btnLeftRect, (g_SetupLang == SETUP_TR) ? L"< Geri" : L"< Back", g_HoverButton == 10, false);
+            DrawStyledButton(memDC, btnRightRect, (g_SetupLang == SETUP_TR) ? L"İleri >" : L"Next >", g_HoverButton == 11, true);
+        } else if (g_CurrentStep == STEP_OPTIONS) {
+            DrawStyledButton(memDC, btnLeftRect, (g_SetupLang == SETUP_TR) ? L"< Geri" : L"< Back", g_HoverButton == 10, false);
+            DrawStyledButton(memDC, btnRightRect, (g_SetupLang == SETUP_TR) ? L"Kur" : L"Install", g_HoverButton == 11, true);
+        } else if (g_CurrentStep == STEP_FINISH) {
+            DrawStyledButton(memDC, btnRightRect, (g_SetupLang == SETUP_TR) ? L"Bitir" : L"Finish", g_HoverButton == 11, true);
+        }
+
+        BitBlt(hdc, 0, 0, rect.right, rect.bottom, memDC, 0, 0, SRCCOPY);
+
+        SelectObject(memDC, oldBmp);
+        DeleteObject(memBmp);
+        DeleteDC(memDC);
 
         EndPaint(hwnd, &ps);
         return 0;
@@ -198,41 +360,87 @@ LRESULT CALLBACK SetupWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         int x = LOWORD(lParam);
         int y = HIWORD(lParam);
 
+        // Language selection card click
         if (g_CurrentStep == STEP_LANG_SELECT) {
-            if (y >= 120 && y <= 150) {
-                g_SetupLang = SETUP_TR;
-                g_CurrentStep = STEP_LICENSE;
-            } else if (y >= 160 && y <= 190) {
-                g_SetupLang = SETUP_EN;
-                g_CurrentStep = STEP_LICENSE;
+            if (y >= 140 && y <= 210) {
+                if (x >= 40 && x <= 240) {
+                    g_SetupLang = SETUP_TR;
+                    InvalidateRect(hwnd, NULL, FALSE);
+                    return 0;
+                } else if (x >= 270 && x <= 470) {
+                    g_SetupLang = SETUP_EN;
+                    InvalidateRect(hwnd, NULL, FALSE);
+                    return 0;
+                }
             }
-            InvalidateRect(hwnd, NULL, TRUE);
-            return 0;
         }
 
-        // Footer button click area [y >= 300]
-        if (y >= 300) {
-            if (g_CurrentStep == STEP_LICENSE) {
-                g_CurrentStep = STEP_FOLDER;
-            } else if (g_CurrentStep == STEP_FOLDER) {
-                g_CurrentStep = STEP_OPTIONS;
-            } else if (g_CurrentStep == STEP_OPTIONS) {
-                g_CurrentStep = STEP_INSTALLING;
-                InvalidateRect(hwnd, NULL, TRUE);
-                UpdateWindow(hwnd);
-                
-                ExecuteInstallation(hwnd);
-                
-                g_CurrentStep = STEP_FINISH;
-            } else if (g_CurrentStep == STEP_FINISH) {
-                if (g_LaunchAfterSetup) {
-                    std::wstring targetExe = std::wstring(g_InstallDir) + L"\\ETDTimer.exe";
-                    ShellExecuteW(NULL, L"open", targetExe.c_str(), NULL, NULL, SW_SHOWNORMAL);
-                }
-                PostQuitMessage(0);
+        // Options Checkbox clicks
+        if (g_CurrentStep == STEP_OPTIONS) {
+            if (y >= 135 && y <= 160 && x >= 35 && x <= 280) {
+                g_CreateDesktopShortcut = !g_CreateDesktopShortcut;
+                InvalidateRect(hwnd, NULL, FALSE);
+                return 0;
             }
-            InvalidateRect(hwnd, NULL, TRUE);
-            return 0;
+            if (y >= 180 && y <= 205 && x >= 35 && x <= 350) {
+                g_StartWithWindows = !g_StartWithWindows;
+                InvalidateRect(hwnd, NULL, FALSE);
+                return 0;
+            }
+        }
+
+        // Finish Checkbox click
+        if (g_CurrentStep == STEP_FINISH) {
+            if (y >= 150 && y <= 175 && x >= 35 && x <= 320) {
+                g_LaunchAfterSetup = !g_LaunchAfterSetup;
+                InvalidateRect(hwnd, NULL, FALSE);
+                return 0;
+            }
+        }
+
+        // Navigation Footer Button clicks (y >= 310 && y <= 350)
+        if (y >= 310 && y <= 350) {
+            // Left Button (Back / Cancel)
+            if (x >= 20 && x <= 120) {
+                if (g_CurrentStep == STEP_LANG_SELECT) {
+                    PostQuitMessage(0);
+                } else if (g_CurrentStep == STEP_LICENSE) {
+                    g_CurrentStep = STEP_LANG_SELECT;
+                } else if (g_CurrentStep == STEP_FOLDER) {
+                    g_CurrentStep = STEP_LICENSE;
+                } else if (g_CurrentStep == STEP_OPTIONS) {
+                    g_CurrentStep = STEP_FOLDER;
+                }
+                InvalidateRect(hwnd, NULL, FALSE);
+                return 0;
+            }
+
+            // Right Button (Next / Accept / Install / Finish)
+            if (x >= 380 && x <= 490) {
+                if (g_CurrentStep == STEP_LANG_SELECT) {
+                    g_CurrentStep = STEP_LICENSE;
+                } else if (g_CurrentStep == STEP_LICENSE) {
+                    g_CurrentStep = STEP_FOLDER;
+                } else if (g_CurrentStep == STEP_FOLDER) {
+                    g_CurrentStep = STEP_OPTIONS;
+                } else if (g_CurrentStep == STEP_OPTIONS) {
+                    g_CurrentStep = STEP_INSTALLING;
+                    InvalidateRect(hwnd, NULL, FALSE);
+                    UpdateWindow(hwnd);
+
+                    ExecuteInstallation(hwnd);
+
+                    g_CurrentStep = STEP_FINISH;
+                } else if (g_CurrentStep == STEP_FINISH) {
+                    if (g_LaunchAfterSetup) {
+                        std::wstring targetExe = std::wstring(g_InstallDir) + L"\\ETDTimer.exe";
+                        ShellExecuteW(NULL, L"open", targetExe.c_str(), NULL, NULL, SW_SHOWNORMAL);
+                    }
+                    PostQuitMessage(0);
+                }
+                InvalidateRect(hwnd, NULL, FALSE);
+                return 0;
+            }
         }
 
         return 0;
@@ -252,14 +460,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.lpfnWndProc = SetupWindowProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
     wc.lpszClassName = L"ETDTimerSetupClass";
 
     RegisterClassExW(&wc);
 
     int screenW = GetSystemMetrics(SM_CXSCREEN);
     int screenH = GetSystemMetrics(SM_CYSCREEN);
-    int width = 480, height = 360;
+    int width = 520, height = 410;
 
     HWND hwnd = CreateWindowExW(
         0, L"ETDTimerSetupClass", L"ETDTimer Setup Wizard",
