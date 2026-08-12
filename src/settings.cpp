@@ -32,6 +32,7 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"LANGUAGE", {L"Dil / Language", L"Language / Dil"}},
     {"SHOW_SECONDS_CLOCK", {L"Saat Görünümünde Saniye Göster", L"Show Seconds in Clock"}},
     {"SHOW_SECONDS_TIMER", {L"Sayaç Görünümünde Saniye Göster", L"Show Seconds in Timers"}},
+    {"FORCE_TOPMOST", {L"Zorla En Üstte (Oyunları da Kapla)", L"Force Always on Top (Override Games)"}},
     {"AUTOSTART", {L"Sistem Başlangıcında Çalıştır", L"Start with Windows"}},
     {"RESTORE_TOOLS", {L"Önceki Araçları Açılışta Yükle", L"Restore Previous Tools on Launch"}},
     {"UI_SCALE", {L"Arayüz Boyutu", L"UI Scale"}},
@@ -80,6 +81,7 @@ void SettingsManager::Load() {
     m_settings.theme = (Theme)GetPrivateProfileIntW(L"Settings", L"Theme", THEME_DARK, cfgFile.c_str());
     m_settings.showSecondsInClock = GetPrivateProfileIntW(L"Settings", L"ShowSecondsClock", 0, cfgFile.c_str()) != 0;
     m_settings.showSecondsInTimer = GetPrivateProfileIntW(L"Settings", L"ShowSecondsTimer", 0, cfgFile.c_str()) != 0;
+    m_settings.forceAlwaysOnTop = GetPrivateProfileIntW(L"Settings", L"ForceAlwaysOnTop", 0, cfgFile.c_str()) != 0;
     m_settings.restorePreviousTools = GetPrivateProfileIntW(L"Settings", L"RestorePreviousTools", 1, cfgFile.c_str()) != 0;
     m_settings.uiScale = GetPrivateProfileIntW(L"Settings", L"UIScale", 100, cfgFile.c_str());
 
@@ -105,6 +107,7 @@ void SettingsManager::Save() {
     WritePrivateProfileStringW(L"Settings", L"Theme", std::to_wstring((int)m_settings.theme).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"ShowSecondsClock", std::to_wstring(m_settings.showSecondsInClock ? 1 : 0).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"ShowSecondsTimer", std::to_wstring(m_settings.showSecondsInTimer ? 1 : 0).c_str(), cfgFile.c_str());
+    WritePrivateProfileStringW(L"Settings", L"ForceAlwaysOnTop", std::to_wstring(m_settings.forceAlwaysOnTop ? 1 : 0).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"RestorePreviousTools", std::to_wstring(m_settings.restorePreviousTools ? 1 : 0).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"UIScale", std::to_wstring(m_settings.uiScale).c_str(), cfgFile.c_str());
 

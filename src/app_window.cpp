@@ -199,6 +199,17 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             }
             curY += 35;
 
+            // Force Always on Top
+            if (y >= curY && y <= curY + 30) {
+                s.forceAlwaysOnTop = !s.forceAlwaysOnTop;
+                if (s.forceAlwaysOnTop) {
+                    SetWindowPos(m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                }
+                InvalidateRect(m_hwnd, NULL, FALSE);
+                return 0;
+            }
+            curY += 35;
+
             // Autostart
             if (y >= curY && y <= curY + 30) {
                 s.autoStart = !s.autoStart;
@@ -408,6 +419,15 @@ void AppWindow::RecalculateLayout() {
 }
 
 void AppWindow::UpdateFullscreenDetection() {
+    if (SettingsManager::Instance().Get().forceAlwaysOnTop) {
+        if (m_isFullscreenActive) {
+            m_isFullscreenActive = false;
+            ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
+        }
+        SetWindowPos(m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+        return;
+    }
+
     HWND fgHwnd = GetForegroundWindow();
     if (!fgHwnd || fgHwnd == m_hwnd) return;
 

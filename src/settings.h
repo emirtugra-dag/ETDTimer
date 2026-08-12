@@ -20,6 +20,7 @@ struct AppSettings {
     Theme theme = THEME_DARK;
     bool showSecondsInClock = false;
     bool showSecondsInTimer = false;
+    bool forceAlwaysOnTop = false;
     bool autoStart = false;
     bool restorePreviousTools = true;
     int uiScale = 100; // 80, 100, 120

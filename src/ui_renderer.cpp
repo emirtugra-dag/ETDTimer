@@ -296,7 +296,7 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     g.FillRectangle(&overlayBrush, 0, 0, width, height);
 
     int modalW = 300;
-    int modalH = 400;
+    int modalH = 440;
     int modalX = (width - modalW) / 2;
     int modalY = (height - modalH) / 2;
 
@@ -333,6 +333,11 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     // 4. Show Seconds in Timer
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_TIMER"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.showSecondsInTimer ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
+    curY += 35;
+
+    // 5. Force Always on Top
+    g.DrawString(SettingsManager::Instance().Text("FORCE_TOPMOST"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
+    g.DrawString(s.forceAlwaysOnTop ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 250, (REAL)curY), m_accentBrush);
     curY += 35;
 
     // 5. Autostart
