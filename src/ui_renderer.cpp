@@ -200,30 +200,30 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
 
         if (!tm->IsRunning()) {
             // Quick Presets Row: [+1dk] [+5dk] [+15dk] [+1sa]
-            RectF p1((REAL)x + 15, (REAL)y + 98, 70, 24);
-            RectF p2((REAL)x + 95, (REAL)y + 98, 70, 24);
-            RectF p3((REAL)x + 175, (REAL)y + 98, 70, 24);
-            RectF p4((REAL)x + 255, (REAL)y + 98, 70, 24);
+            RectF p1((REAL)x + 15, (REAL)y + 95, 70, 26);
+            RectF p2((REAL)x + 95, (REAL)y + 95, 70, 26);
+            RectF p3((REAL)x + 175, (REAL)y + 95, 70, 26);
+            RectF p4((REAL)x + 255, (REAL)y + 95, 70, 26);
             g.FillRectangle(m_buttonBrush, p1); g.DrawRectangle(m_borderPen, p1);
             g.FillRectangle(m_buttonBrush, p2); g.DrawRectangle(m_borderPen, p2);
             g.FillRectangle(m_buttonBrush, p3); g.DrawRectangle(m_borderPen, p3);
             g.FillRectangle(m_buttonBrush, p4); g.DrawRectangle(m_borderPen, p4);
 
-            g.DrawString(L"+1dk", -1, &smallFont, PointF((REAL)x + 32, (REAL)y + 101), m_textBrush);
-            g.DrawString(L"+5dk", -1, &smallFont, PointF((REAL)x + 112, (REAL)y + 101), m_textBrush);
-            g.DrawString(L"+15dk", -1, &smallFont, PointF((REAL)x + 188, (REAL)y + 101), m_textBrush);
-            g.DrawString(L"+1sa", -1, &smallFont, PointF((REAL)x + 272, (REAL)y + 101), m_textBrush);
+            g.DrawString(L"+1dk", -1, &smallFont, PointF((REAL)x + 32, (REAL)y + 99), m_textBrush);
+            g.DrawString(L"+5dk", -1, &smallFont, PointF((REAL)x + 112, (REAL)y + 99), m_textBrush);
+            g.DrawString(L"+15dk", -1, &smallFont, PointF((REAL)x + 188, (REAL)y + 99), m_textBrush);
+            g.DrawString(L"+1sa", -1, &smallFont, PointF((REAL)x + 272, (REAL)y + 99), m_textBrush);
         }
 
         // Start/Pause & Reset Buttons
-        RectF startBtn((REAL)x + 15, (REAL)y + 145, 190, 30);
-        RectF resetBtn((REAL)x + 215, (REAL)y + 145, 110, 30);
+        RectF startBtn((REAL)x + 15, (REAL)y + 135, 190, 32);
+        RectF resetBtn((REAL)x + 215, (REAL)y + 135, 110, 32);
         g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
         g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
 
         const wchar_t* stTxt = tm->IsRunning() ? SettingsManager::Instance().Text("PAUSE") : SettingsManager::Instance().Text("START");
-        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 150), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 150), m_textBrush);
+        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 142), m_textBrush);
+        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 142), m_textBrush);
 
     } else if (card->GetType() == TOOL_POMODORO) {
         PomodoroTool* pm = (PomodoroTool*)card;

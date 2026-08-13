@@ -67,7 +67,11 @@ bool StopwatchTool::OnLButtonDown(int x, int y) {
 // Timer Implementation
 // ----------------------------------------------------
 TimerTool::TimerTool() : ToolCard(TOOL_TIMER) {
-    m_height = 150;
+    m_height = 180;
+    inputHours = 0;
+    inputMins = 15;
+    m_remainingSec = 900;
+    m_initialSec = 900;
 }
 
 void TimerTool::Update(DWORD deltaMs) {
@@ -103,29 +107,17 @@ bool TimerTool::OnLButtonDown(int x, int y) {
     }
 
     if (!m_running) {
-        // Quick Presets Row: y [65, 95]
-        if (y >= 65 && y <= 95) {
+        // Quick Presets Row: y [95, 122]
+        if (y >= 95 && y <= 122) {
             if (x >= 15 && x <= 85) { inputMins += 1; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +1dk
             if (x >= 95 && x <= 165) { inputMins += 5; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +5dk
             if (x >= 175 && x <= 245) { inputMins += 15; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +15dk
             if (x >= 255 && x <= 325) { inputHours += 1; return true; } // +1sa
         }
-
-        // Stepper Row: y [102, 135]
-        if (y >= 102 && y <= 135) {
-            // Hour -
-            if (x >= 15 && x <= 45) { if (inputHours > 0) inputHours--; return true; }
-            // Hour +
-            if (x >= 95 && x <= 125) { inputHours++; return true; }
-            // Min -
-            if (x >= 140 && x <= 170) { if (inputMins > 0) inputMins--; return true; }
-            // Min +
-            if (x >= 220 && x <= 250) { inputMins = (inputMins + 1) % 60; return true; }
-        }
     }
 
-    // Start/Pause Button: x [15, 205], y [145, 175]
-    if (x >= 15 && x <= 205 && y >= 145 && y <= 175) {
+    // Start/Pause Button: x [15, 205], y [135, 168]
+    if (x >= 15 && x <= 205 && y >= 135 && y <= 168) {
         if (!m_running) {
             if (m_mode == TIMER_MODE_DURATION) {
                 m_remainingSec = inputHours * 3600 + inputMins * 60;
@@ -149,8 +141,8 @@ bool TimerTool::OnLButtonDown(int x, int y) {
         return true;
     }
 
-    // Reset Button: x [215, 325], y [145, 175]
-    if (x >= 215 && x <= 325 && y >= 145 && y <= 175) {
+    // Reset Button: x [215, 325], y [135, 168]
+    if (x >= 215 && x <= 325 && y >= 135 && y <= 168) {
         m_running = false;
         m_finished = false;
         if (m_mode == TIMER_MODE_DURATION) {
