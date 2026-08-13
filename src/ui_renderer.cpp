@@ -274,66 +274,60 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 58), m_textBrush);
 
         if (!tm->IsRunning()) {
-            // 3 Clean Input Boxes (Saat, Dakika, Saniye)
             Font boxFont(L"Segoe UI", 9, FontStyleBold, UnitPoint);
-            RectF box1((REAL)x + 15, (REAL)y + 92, 100, 30);
-            RectF box2((REAL)x + 130, (REAL)y + 92, 100, 30);
-            RectF box3((REAL)x + 245, (REAL)y + 92, 100, 30);
 
-            bool act1 = (tm->activeInputIndex == 0);
-            bool act2 = (tm->activeInputIndex == 1);
-            bool act3 = (tm->activeInputIndex == 2);
+            if (tm->GetMode() == TIMER_MODE_DURATION) {
+                // 3 Clean Input Boxes (Saat, Dakika, Saniye)
+                RectF box1((REAL)x + 15, (REAL)y + 92, 100, 30);
+                RectF box2((REAL)x + 130, (REAL)y + 92, 100, 30);
+                RectF box3((REAL)x + 245, (REAL)y + 92, 100, 30);
 
-            g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(act1 ? m_accentPen : m_borderPen, box1);
-            g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
-            g.FillRectangle(m_buttonBrush, box3); g.DrawRectangle(act3 ? m_accentPen : m_borderPen, box3);
+                bool act1 = (tm->activeInputIndex == 0);
+                bool act2 = (tm->activeInputIndex == 1);
+                bool act3 = (tm->activeInputIndex == 2);
 
-            std::wstring displayH = tm->hoursStr + (act1 && m_blinkOn ? L"|" : L"") + L" sa";
-            std::wstring displayM = tm->minsStr + (act2 && m_blinkOn ? L"|" : L"") + L" dk";
-            std::wstring displayS = tm->secsStr + (act3 && m_blinkOn ? L"|" : L"") + L" sn";
+                g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(act1 ? m_accentPen : m_borderPen, box1);
+                g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
+                g.FillRectangle(m_buttonBrush, box3); g.DrawRectangle(act3 ? m_accentPen : m_borderPen, box3);
 
-            g.DrawString(displayH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 97), m_textBrush);
-            g.DrawString(displayM.c_str(), -1, &boxFont, PointF((REAL)x + 140, (REAL)y + 97), m_textBrush);
-            g.DrawString(displayS.c_str(), -1, &boxFont, PointF((REAL)x + 255, (REAL)y + 97), m_textBrush);
+                std::wstring displayH = tm->hoursStr + (act1 && m_blinkOn ? L"|" : L"") + L" sa";
+                std::wstring displayM = tm->minsStr + (act2 && m_blinkOn ? L"|" : L"") + L" dk";
+                std::wstring displayS = tm->secsStr + (act3 && m_blinkOn ? L"|" : L"") + L" sn";
 
-            // Quick Presets Row: [+1dk] [+5dk] [+15dk] [+1sa] [C]
-            RectF p1((REAL)x + 15, (REAL)y + 128, 60, 26);
-            RectF p2((REAL)x + 82, (REAL)y + 128, 60, 26);
-            RectF p3((REAL)x + 149, (REAL)y + 128, 60, 26);
-            RectF p4((REAL)x + 216, (REAL)y + 128, 60, 26);
-            RectF p5((REAL)x + 283, (REAL)y + 128, 62, 26);
+                g.DrawString(displayH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 97), m_textBrush);
+                g.DrawString(displayM.c_str(), -1, &boxFont, PointF((REAL)x + 140, (REAL)y + 97), m_textBrush);
+                g.DrawString(displayS.c_str(), -1, &boxFont, PointF((REAL)x + 255, (REAL)y + 97), m_textBrush);
+            } else {
+                // 2 Clean Input Boxes (Hedef Saat, Hedef Dakika - e.g. 11 sa 49 dk)
+                RectF box1((REAL)x + 15, (REAL)y + 92, 160, 30);
+                RectF box2((REAL)x + 185, (REAL)y + 92, 160, 30);
 
-            bool hp1 = (m_mouseX >= x + 15 && m_mouseX <= x + 75 && m_mouseY >= y + 128 && m_mouseY <= y + 154);
-            bool hp2 = (m_mouseX >= x + 82 && m_mouseX <= x + 142 && m_mouseY >= y + 128 && m_mouseY <= y + 154);
-            bool hp3 = (m_mouseX >= x + 149 && m_mouseX <= x + 209 && m_mouseY >= y + 128 && m_mouseY <= y + 154);
-            bool hp4 = (m_mouseX >= x + 216 && m_mouseX <= x + 276 && m_mouseY >= y + 128 && m_mouseY <= y + 154);
-            bool hp5 = (m_mouseX >= x + 283 && m_mouseX <= x + 345 && m_mouseY >= y + 128 && m_mouseY <= y + 154);
+                bool act1 = (tm->activeInputIndex == 0);
+                bool act2 = (tm->activeInputIndex == 1);
 
-            g.FillRectangle(hp1 ? m_buttonHoverBrush : m_buttonBrush, p1); g.DrawRectangle(hp1 ? m_accentPen : m_borderPen, p1);
-            g.FillRectangle(hp2 ? m_buttonHoverBrush : m_buttonBrush, p2); g.DrawRectangle(hp2 ? m_accentPen : m_borderPen, p2);
-            g.FillRectangle(hp3 ? m_buttonHoverBrush : m_buttonBrush, p3); g.DrawRectangle(hp3 ? m_accentPen : m_borderPen, p3);
-            g.FillRectangle(hp4 ? m_buttonHoverBrush : m_buttonBrush, p4); g.DrawRectangle(hp4 ? m_accentPen : m_borderPen, p4);
-            g.FillRectangle(hp5 ? m_buttonHoverBrush : m_buttonBrush, p5); g.DrawRectangle(hp5 ? m_accentPen : m_borderPen, p5);
+                g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(act1 ? m_accentPen : m_borderPen, box1);
+                g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
 
-            g.DrawString(L"+1dk", -1, &smallFont, PointF((REAL)x + 27, (REAL)y + 132), m_textBrush);
-            g.DrawString(L"+5dk", -1, &smallFont, PointF((REAL)x + 94, (REAL)y + 132), m_textBrush);
-            g.DrawString(L"+15dk", -1, &smallFont, PointF((REAL)x + 158, (REAL)y + 132), m_textBrush);
-            g.DrawString(L"+1sa", -1, &smallFont, PointF((REAL)x + 228, (REAL)y + 132), m_textBrush);
-            g.DrawString(L"Temizle", -1, &smallFont, PointF((REAL)x + 290, (REAL)y + 132), m_textBrush);
+                std::wstring displayTH = L"Hedef Saat: " + tm->targetHoursStr + (act1 && m_blinkOn ? L"|" : L"");
+                std::wstring displayTM = L"Hedef Dakika: " + tm->targetMinsStr + (act2 && m_blinkOn ? L"|" : L"");
+
+                g.DrawString(displayTH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 97), m_textBrush);
+                g.DrawString(displayTM.c_str(), -1, &boxFont, PointF((REAL)x + 195, (REAL)y + 97), m_textBrush);
+            }
 
             // Start/Pause & Reset Buttons (Stopped state)
-            RectF startBtn((REAL)x + 15, (REAL)y + 162, 200, 30);
-            RectF resetBtn((REAL)x + 225, (REAL)y + 162, 120, 30);
+            RectF startBtn((REAL)x + 15, (REAL)y + 132, 200, 30);
+            RectF resetBtn((REAL)x + 225, (REAL)y + 132, 120, 30);
 
-            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 162 && m_mouseY <= y + 192);
-            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 162 && m_mouseY <= y + 192);
+            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 132 && m_mouseY <= y + 164);
+            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 132 && m_mouseY <= y + 164);
 
             g.FillRectangle(hs ? m_buttonHoverBrush : m_buttonBrush, startBtn); g.DrawRectangle(hs ? m_accentPen : m_borderPen, startBtn);
             g.FillRectangle(hr ? m_buttonHoverBrush : m_buttonBrush, resetBtn); g.DrawRectangle(hr ? m_accentPen : m_borderPen, resetBtn);
 
             const wchar_t* stTxt = SettingsManager::Instance().Text("START");
-            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 168), m_textBrush);
-            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 168), m_textBrush);
+            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 138), m_textBrush);
+            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 138), m_textBrush);
         } else {
             // Start/Pause & Reset Buttons (Running state - compact height)
             RectF startBtn((REAL)x + 15, (REAL)y + 92, 200, 32);

@@ -97,7 +97,7 @@ public:
     void OnCharInput(wchar_t ch) override;
 
     int GetHeight() const override {
-        return m_running ? 135 : 200;
+        return m_running ? 135 : 175;
     }
 
     TimerMode GetMode() const { return m_mode; }
@@ -113,7 +113,10 @@ public:
     std::wstring hoursStr = L"0";
     std::wstring minsStr = L"15";
     std::wstring secsStr = L"0";
-    int activeInputIndex = -1; // 0: hrs, 1: mins, 2: secs
+
+    std::wstring targetHoursStr = L"11";
+    std::wstring targetMinsStr = L"49";
+    int activeInputIndex = -1;
 
 private:
     TimerMode m_mode = TIMER_MODE_DURATION;
