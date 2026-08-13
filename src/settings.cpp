@@ -68,7 +68,14 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"TURKISH", {L"Türkçe", L"Turkish"}},
     {"ENGLISH", {L"English", L"English"}},
     {"CLOCK_ONLY_MODE", {L"Sadece Saat Modu (Kompakt Saat)", L"Clock Only Mode (Compact Clock)"}},
-    {"ROUNDED_CORNERS", {L"Yuvarlatılmış Kenarlar Modu", L"Rounded Corners Mode"}}
+    {"ROUNDED_CORNERS", {L"Yuvarlatılmış Kenarlar Modu", L"Rounded Corners Mode"}},
+    {"TARGET_HOUR_BOX", {L"Hedef Saat", L"Target Hour"}},
+    {"TARGET_MIN_BOX", {L"Hedef Dk", L"Target Min"}},
+    {"HOURS_UNIT", {L"sa", L"h"}},
+    {"MINS_UNIT", {L"dk", L"m"}},
+    {"SECS_UNIT", {L"sn", L"s"}},
+    {"RUNNING_STATUS", {L"⏳ Geri Sayım Devam Ediyor...", L"⏳ Countdown in Progress..."}},
+    {"READY_SESSIONS", {L"Hazır (Toplam %d Seans Planlandı)", L"Ready (%d Total Sessions Planned)"}}
 };
 
 SettingsManager& SettingsManager::Instance() {

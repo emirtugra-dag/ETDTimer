@@ -267,8 +267,11 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         if (SettingsManager::Instance().Get().showSecondsInTimer || secs > 0) {
             swprintf_s(buf, 64, L"%02d:%02d:%02d", hrs, mins, secs);
         } else {
-            if (hrs > 0) swprintf_s(buf, 64, L"%02d sa %02d dk", hrs, mins);
-            else swprintf_s(buf, 64, L"%02d dk", mins);
+            if (hrs > 0) {
+                swprintf_s(buf, 64, SettingsManager::Instance().Get().lang == LANG_TR ? L"%02d sa %02d dk" : L"%02d h %02d m", hrs, mins);
+            } else {
+                swprintf_s(buf, 64, SettingsManager::Instance().Get().lang == LANG_TR ? L"%02d dk" : L"%02d m", mins);
+            }
         }
 
         if (!tm->IsRunning()) {
@@ -292,15 +295,15 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
                 g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
                 g.FillRectangle(m_buttonBrush, box3); g.DrawRectangle(act3 ? m_accentPen : m_borderPen, box3);
 
-                std::wstring displayH = tm->hoursStr + (act1 && m_blinkOn ? L"|" : L"") + L" sa";
-                std::wstring displayM = tm->minsStr + (act2 && m_blinkOn ? L"|" : L"") + L" dk";
-                std::wstring displayS = tm->secsStr + (act3 && m_blinkOn ? L"|" : L"") + L" sn";
+                std::wstring displayH = tm->hoursStr + (act1 && m_blinkOn ? L"|" : L"") + L" " + SettingsManager::Instance().Text("HOURS_UNIT");
+                std::wstring displayM = tm->minsStr + (act2 && m_blinkOn ? L"|" : L"") + L" " + SettingsManager::Instance().Text("MINS_UNIT");
+                std::wstring displayS = tm->secsStr + (act3 && m_blinkOn ? L"|" : L"") + L" " + SettingsManager::Instance().Text("SECS_UNIT");
 
                 g.DrawString(displayH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 101), m_textBrush);
                 g.DrawString(displayM.c_str(), -1, &boxFont, PointF((REAL)x + 140, (REAL)y + 101), m_textBrush);
                 g.DrawString(displayS.c_str(), -1, &boxFont, PointF((REAL)x + 255, (REAL)y + 101), m_textBrush);
             } else {
-                // 2 Clean Input Boxes (Hedef Saat, Hedef Dakika - e.g. 11 sa 49 dk) at y = 96
+                // 2 Clean Input Boxes (Target Hour, Target Min) at y = 96
                 RectF box1((REAL)x + 15, (REAL)y + 96, 160, 30);
                 RectF box2((REAL)x + 185, (REAL)y + 96, 160, 30);
 
@@ -310,8 +313,8 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
                 g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(act1 ? m_accentPen : m_borderPen, box1);
                 g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
 
-                std::wstring displayTH = L"Hedef Saat: " + tm->targetHoursStr + (act1 && m_blinkOn ? L"|" : L"");
-                std::wstring displayTM = L"Hedef Dk: " + tm->targetMinsStr + (act2 && m_blinkOn ? L"|" : L"");
+                std::wstring displayTH = std::wstring(SettingsManager::Instance().Text("TARGET_HOUR_BOX")) + L": " + tm->targetHoursStr + (act1 && m_blinkOn ? L"|" : L"");
+                std::wstring displayTM = std::wstring(SettingsManager::Instance().Text("TARGET_MIN_BOX")) + L": " + tm->targetMinsStr + (act2 && m_blinkOn ? L"|" : L"");
 
                 g.DrawString(displayTH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 101), m_textBrush);
                 g.DrawString(displayTM.c_str(), -1, &boxFont, PointF((REAL)x + 195, (REAL)y + 101), m_textBrush);
@@ -334,7 +337,7 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
             // Running state: large 24pt digits at y = 55
             g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 55), m_textBrush);
 
-            g.DrawString(L"⏳ Geri Sayım Devam Ediyor...", -1, &smallFont, PointF((REAL)x + 15, (REAL)y + 98), m_textDimBrush);
+            g.DrawString(SettingsManager::Instance().Text("RUNNING_STATUS"), -1, &smallFont, PointF((REAL)x + 15, (REAL)y + 98), m_textDimBrush);
 
             // Start/Pause & Reset Buttons (Running state - fixed y = 136)
             RectF startBtn((REAL)x + 15, (REAL)y + 136, 200, 30);
@@ -357,7 +360,7 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         // Subtitle (NO duplicate "Pomodoro" text when idle!)
         wchar_t statusBuf[128];
         if (pm->GetState() == POMO_IDLE) {
-            swprintf_s(statusBuf, 128, L"Hazır (Toplam %d Seans Planlandı)", pm->GetTotalSessions());
+            swprintf_s(statusBuf, 128, SettingsManager::Instance().Text("READY_SESSIONS"), pm->GetTotalSessions());
         } else if (pm->GetState() == POMO_WORK) {
             swprintf_s(statusBuf, 128, L"%s (%d/%d)", SettingsManager::Instance().Text("WORK_PHASE"), pm->GetCurrentSession(), pm->GetTotalSessions());
         } else if (pm->GetState() == POMO_BREAK) {
@@ -400,9 +403,9 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(s3.c_str(), -1, &smallFont, PointF((REAL)x + 252, (REAL)y + 98), m_textBrush);
 
         Font tinyFont(L"Segoe UI", 8, FontStyleRegular, UnitPoint);
-        g.DrawString(L"Çalışma (dk)", -1, &tinyFont, PointF((REAL)x + 15, (REAL)y + 125), m_textDimBrush);
-        g.DrawString(L"Mola (dk)", -1, &tinyFont, PointF((REAL)x + 130, (REAL)y + 125), m_textDimBrush);
-        g.DrawString(L"Hedef (saat)", -1, &tinyFont, PointF((REAL)x + 245, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("WORK_MIN"), -1, &tinyFont, PointF((REAL)x + 15, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("BREAK_MIN"), -1, &tinyFont, PointF((REAL)x + 130, (REAL)y + 125), m_textDimBrush);
+        g.DrawString(SettingsManager::Instance().Text("TARGET_HOURS"), -1, &tinyFont, PointF((REAL)x + 245, (REAL)y + 125), m_textDimBrush);
 
         // Buttons: Calculate & Start, Reset
         RectF startBtn((REAL)x + 15, (REAL)y + 155, 205, 30);
