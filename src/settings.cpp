@@ -6,11 +6,11 @@
 
 const wchar_t* g_LegalDisclaimerTR = 
     L"Yasal Bildirim & Sorumluluk Reddi:\n\n"
-    L"Bu yazılım 'olduğu gibi' (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.";
+    L"Bu yazılım 'olduğu gibi' (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve telif / fikri mülkiyet hakları Emir Tuğra Dağ'a aittir.";
 
 const wchar_t* g_LegalDisclaimerEN = 
     L"Legal Disclaimer & Notice:\n\n"
-    L"This software is provided 'as is', without warranty of any kind. The developer, Emir Tuğra Dağ, shall not be held liable for any claims, damages, or issues arising from the use of this software. The developer assumes no obligation to provide updates or new features. Codebase is under the MIT License; all rights to the project name and logos are reserved by Emir Tuğra Dağ.";
+    L"This software is provided 'as is', without warranty of any kind. The developer, Emir Tuğra Dağ, shall not be held liable for any claims, damages, or issues arising from the use of this software. The developer assumes no obligation to provide updates or maintenance. The codebase is under the MIT License; all intellectual property rights to the project name and branding are retained by Emir Tuğra Dağ.";
 
 static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary = {
     {"APP_TITLE", {L"ETDTimer", L"ETDTimer"}},

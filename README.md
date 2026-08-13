@@ -128,9 +128,9 @@ This compiles `ETDTimer.exe`, packs it into `ETDTimerSetup.exe`, and digitally s
 ETDTimer is released under the **MIT License**.
 
 > **Legal Notice**:  
-> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.
+> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve telif / fikri mülkiyet hakları Emir Tuğra Dağ'a aittir.
 
-Copyright (c) 2026 **Emir Tuğra Dağ**. All rights reserved.
+Copyright (c) 2026 **Emir Tuğra Dağ**. Intellectual property rights reserved.
 
 ---
 
@@ -207,6 +207,6 @@ powershell -ExecutionPolicy Bypass -File "build_and_sign.ps1"
 ETDTimer **MIT Lisansı** ile lisanslanmıştır.
 
 > **Yasal Bildirim & Sorumluluk Reddi**:  
-> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.
+> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve telif / fikri mülkiyet hakları Emir Tuğra Dağ'a aittir.
 
-Tüm Hakları Saklıdır © 2026 **Emir Tuğra Dağ**.
+Telif Hakkı © 2026 **Emir Tuğra Dağ**. Fikri mülkiyet hakları saklıdır.

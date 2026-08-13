@@ -33,12 +33,12 @@ static int g_HoverButton = -1;
 const wchar_t* g_SetupLegalNoticeTR = 
     L"YASAL BİLDİRİM VE SORUMLULUK REDDİ:\n\n"
     L"Bu yazılım 'olduğu gibi' (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz.\n\n"
-    L"Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.";
+    L"Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve telif / fikri mülkiyet hakları Emir Tuğra Dağ'a aittir.";
 
 const wchar_t* g_SetupLegalNoticeEN = 
     L"LEGAL DISCLAIMER & NOTICE:\n\n"
     L"This software is provided 'as is', without warranty of any kind. The developer, Emir Tuğra Dağ, shall not be held liable for any claims, damages, or issues arising from the use of this software.\n\n"
-    L"The developer assumes no obligation to provide updates or new features. Codebase is under the MIT License; all rights to the project name and logos are reserved by Emir Tuğra Dağ.";
+    L"The developer assumes no obligation to provide updates or maintenance. The codebase is under the MIT License; all intellectual property rights to the project name and branding are retained by Emir Tuğra Dağ.";
 
 bool CreateShortcut(const wchar_t* targetPath, const wchar_t* shortcutPath, const wchar_t* description) {
     HRESULT hr = CoInitialize(NULL);
