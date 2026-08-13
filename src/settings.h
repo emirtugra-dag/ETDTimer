@@ -18,6 +18,7 @@ enum Theme {
 struct AppSettings {
     Language lang = LANG_TR;
     Theme theme = THEME_DARK;
+    bool roundedCorners = true;
     bool showSecondsInClock = false;
     bool showSecondsInTimer = false;
     bool forceAlwaysOnTop = false;

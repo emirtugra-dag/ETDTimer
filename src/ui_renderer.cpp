@@ -519,7 +519,12 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     // 4. Clock Only Mode Toggle (Kompakt Saat Modu)
     g.DrawString(SettingsManager::Instance().Text("CLOCK_ONLY_MODE"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.clockOnlyMode ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 315, (REAL)curY), m_accentBrush);
-    curY += 26;
+    curY += 25;
+
+    // 5. Rounded Corners Mode Toggle (Yuvarlatılmış Kenarlar)
+    g.DrawString(SettingsManager::Instance().Text("ROUNDED_CORNERS"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
+    g.DrawString(s.roundedCorners ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 315, (REAL)curY), m_accentBrush);
+    curY += 25;
 
     // 5. Show Seconds in Clock
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_CLOCK"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);

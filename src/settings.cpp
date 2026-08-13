@@ -67,7 +67,8 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"SET_TIME_HINT", {L"Ayarlandığı Süre: %02d sa %02d dk", L"Set Time: %02d h %02d m"}},
     {"TURKISH", {L"Türkçe", L"Turkish"}},
     {"ENGLISH", {L"English", L"English"}},
-    {"CLOCK_ONLY_MODE", {L"Sadece Saat Modu (Kompakt Saat)", L"Clock Only Mode (Compact Clock)"}}
+    {"CLOCK_ONLY_MODE", {L"Sadece Saat Modu (Kompakt Saat)", L"Clock Only Mode (Compact Clock)"}},
+    {"ROUNDED_CORNERS", {L"Yuvarlatılmış Kenarlar Modu", L"Rounded Corners Mode"}}
 };
 
 SettingsManager& SettingsManager::Instance() {
@@ -90,6 +91,7 @@ void SettingsManager::Load() {
 
     m_settings.lang = (Language)GetPrivateProfileIntW(L"Settings", L"Language", LANG_TR, cfgFile.c_str());
     m_settings.theme = (Theme)GetPrivateProfileIntW(L"Settings", L"Theme", THEME_DARK, cfgFile.c_str());
+    m_settings.roundedCorners = GetPrivateProfileIntW(L"Settings", L"RoundedCorners", 1, cfgFile.c_str()) != 0;
     m_settings.showSecondsInClock = GetPrivateProfileIntW(L"Settings", L"ShowSecondsClock", 0, cfgFile.c_str()) != 0;
     m_settings.showSecondsInTimer = GetPrivateProfileIntW(L"Settings", L"ShowSecondsTimer", 0, cfgFile.c_str()) != 0;
     m_settings.forceAlwaysOnTop = GetPrivateProfileIntW(L"Settings", L"ForceAlwaysOnTop", 0, cfgFile.c_str()) != 0;
@@ -117,6 +119,7 @@ void SettingsManager::Save() {
 
     WritePrivateProfileStringW(L"Settings", L"Language", std::to_wstring((int)m_settings.lang).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"Theme", std::to_wstring((int)m_settings.theme).c_str(), cfgFile.c_str());
+    WritePrivateProfileStringW(L"Settings", L"RoundedCorners", std::to_wstring(m_settings.roundedCorners ? 1 : 0).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"ShowSecondsClock", std::to_wstring(m_settings.showSecondsInClock ? 1 : 0).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"ShowSecondsTimer", std::to_wstring(m_settings.showSecondsInTimer ? 1 : 0).c_str(), cfgFile.c_str());
     WritePrivateProfileStringW(L"Settings", L"ForceAlwaysOnTop", std::to_wstring(m_settings.forceAlwaysOnTop ? 1 : 0).c_str(), cfgFile.c_str());

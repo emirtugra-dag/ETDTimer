@@ -299,20 +299,28 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             curY += 26;
 
             // UI Scale switch
-            if (y >= curY && y <= curY + 26) {
+            if (y >= curY && y <= curY + 25) {
                 s.uiScale = (s.uiScale == 100) ? 120 : ((s.uiScale == 120) ? 85 : 100);
                 RecalculateLayout();
                 return 0;
             }
-            curY += 26;
+            curY += 25;
 
             // Clock Only Mode switch
-            if (y >= curY && y <= curY + 26) {
+            if (y >= curY && y <= curY + 25) {
                 s.clockOnlyMode = !s.clockOnlyMode;
                 RecalculateLayout();
                 return 0;
             }
-            curY += 26;
+            curY += 25;
+
+            // Rounded Corners Mode switch
+            if (y >= curY && y <= curY + 25) {
+                s.roundedCorners = !s.roundedCorners;
+                RecalculateLayout();
+                return 0;
+            }
+            curY += 25;
 
             // Show Seconds Clock
             if (y >= curY && y <= curY + 26) {
@@ -649,7 +657,20 @@ void AppWindow::RecalculateLayout() {
     m_windowHeight = (int)(m_logicalHeight * scale + 0.5f);
 
     SetWindowPos(m_hwnd, NULL, 0, 0, m_windowWidth, m_windowHeight, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+    UpdateWindowRegion();
     InvalidateRect(m_hwnd, NULL, FALSE);
+}
+
+void AppWindow::UpdateWindowRegion() {
+    if (SettingsManager::Instance().Get().roundedCorners) {
+        float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
+        if (scale <= 0.1f) scale = 1.0f;
+        int cornerRadius = (int)(16 * scale);
+        HRGN hRgn = CreateRoundRectRgn(0, 0, m_windowWidth + 1, m_windowHeight + 1, cornerRadius, cornerRadius);
+        SetWindowRgn(m_hwnd, hRgn, TRUE);
+    } else {
+        SetWindowRgn(m_hwnd, NULL, TRUE);
+    }
 }
 
 void AppWindow::UpdateFullscreenDetection() {

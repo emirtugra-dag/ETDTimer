@@ -30,6 +30,7 @@ private:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void RecalculateLayout();
+    void UpdateWindowRegion();
     void UpdateFullscreenDetection();
     void SaveState();
     void RestoreState();
