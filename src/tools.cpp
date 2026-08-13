@@ -123,30 +123,35 @@ bool TimerTool::OnLButtonDown(int x, int y) {
     }
 
     if (!m_running) {
-        // Direct Stepper Row: y [95, 122]
-        if (y >= 95 && y <= 122) {
-            // Hours - / +
-            if (x >= 15 && x <= 40) { if (inputHours > 0) inputHours--; return true; }
-            if (x >= 85 && x <= 110) { inputHours++; return true; }
-            // Mins - / +
-            if (x >= 130 && x <= 155) { if (inputMins > 0) inputMins--; return true; }
-            if (x >= 200 && x <= 225) { inputMins = (inputMins + 1) % 60; return true; }
-            // Secs - / +
-            if (x >= 245 && x <= 270) { if (inputSecs > 0) inputSecs--; return true; }
-            if (x >= 315 && x <= 340) { inputSecs = (inputSecs + 5) % 60; return true; }
-        }
+        // 3 Clean Input Boxes (Saat, Dakika, Saniye): y [92, 122]
+        if (x >= 15 && x <= 115 && y >= 92 && y <= 122) { activeInputIndex = 0; return true; } // Hours box
+        if (x >= 130 && x <= 230 && y >= 92 && y <= 122) { activeInputIndex = 1; return true; } // Mins box
+        if (x >= 245 && x <= 345 && y >= 92 && y <= 122) { activeInputIndex = 2; return true; } // Secs box
+
+        activeInputIndex = -1;
 
         // Quick Presets Row: y [128, 154]
         if (y >= 128 && y <= 154) {
-            if (x >= 15 && x <= 75) { inputMins += 1; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +1dk
-            if (x >= 82 && x <= 142) { inputMins += 5; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +5dk
-            if (x >= 149 && x <= 209) { inputMins += 15; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +15dk
-            if (x >= 216 && x <= 276) { inputHours += 1; return true; } // +1sa
-            if (x >= 283 && x <= 345) { inputHours = 0; inputMins = 0; inputSecs = 0; return true; } // Temizle
+            if (x >= 15 && x <= 75) { inputMins += 1; } // +1dk
+            else if (x >= 82 && x <= 142) { inputMins += 5; } // +5dk
+            else if (x >= 149 && x <= 209) { inputMins += 15; } // +15dk
+            else if (x >= 216 && x <= 276) { inputHours += 1; } // +1sa
+            else if (x >= 283 && x <= 345) { inputHours = 0; inputMins = 0; inputSecs = 0; } // Temizle
+
+            if (inputMins >= 60) {
+                inputHours += inputMins / 60;
+                inputMins %= 60;
+            }
+            SyncInputStrings();
+            return true;
         }
 
         // Start/Pause Button (stopped state): x [15, 215], y [162, 192]
         if (x >= 15 && x <= 215 && y >= 162 && y <= 192) {
+            inputHours = _wtoi(hoursStr.c_str());
+            inputMins = _wtoi(minsStr.c_str());
+            inputSecs = _wtoi(secsStr.c_str());
+
             if (m_mode == TIMER_MODE_DURATION) {
                 m_remainingSec = inputHours * 3600 + inputMins * 60 + inputSecs;
                 if (m_remainingSec <= 0) m_remainingSec = 60;
@@ -199,7 +204,30 @@ bool TimerTool::OnLButtonDown(int x, int y) {
     return false;
 }
 
-void TimerTool::OnCharInput(wchar_t ch) {}
+void TimerTool::OnCharInput(wchar_t ch) {
+    std::wstring* target = nullptr;
+    if (activeInputIndex == 0) target = &hoursStr;
+    else if (activeInputIndex == 1) target = &minsStr;
+    else if (activeInputIndex == 2) target = &secsStr;
+
+    if (target) {
+        if (ch == VK_BACK) {
+            if (!target->empty()) target->pop_back();
+        } else if (ch >= L'0' && ch <= L'9') {
+            if (target->length() < 2) *target += ch;
+        }
+        inputHours = _wtoi(hoursStr.c_str());
+        inputMins = _wtoi(minsStr.c_str());
+        inputSecs = _wtoi(secsStr.c_str());
+    }
+}
+
+void TimerTool::SyncInputStrings() {
+    wchar_t hb[16], mb[16], sb[16];
+    swprintf_s(hb, 16, L"%d", inputHours); hoursStr = hb;
+    swprintf_s(mb, 16, L"%d", inputMins); minsStr = mb;
+    swprintf_s(sb, 16, L"%d", inputSecs); secsStr = sb;
+}
 
 // ----------------------------------------------------
 // Pomodoro Implementation

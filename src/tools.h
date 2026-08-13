@@ -105,9 +105,14 @@ public:
     int GetRemainingSec() const;
     int GetInitialSec() const { return m_initialSec; }
 
+    void SyncInputStrings();
+
     int inputHours = 0;
     int inputMins = 15;
     int inputSecs = 0;
+    std::wstring hoursStr = L"0";
+    std::wstring minsStr = L"15";
+    std::wstring secsStr = L"0";
     int activeInputIndex = -1; // 0: hrs, 1: mins, 2: secs
 
 private:

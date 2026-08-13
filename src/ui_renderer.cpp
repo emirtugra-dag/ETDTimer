@@ -274,44 +274,27 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
         g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 58), m_textBrush);
 
         if (!tm->IsRunning()) {
-            // Direct Stepper Control Row: [ - ] 00 sa [ + ]   [ - ] 15 dk [ + ]   [ - ] 00 sn [ + ]
-            Font stepFont(L"Segoe UI", 8, FontStyleBold, UnitPoint);
-            
-            // Hours stepper
-            RectF hMinus((REAL)x + 15, (REAL)y + 95, 25, 26);
-            RectF hVal((REAL)x + 42, (REAL)y + 95, 41, 26);
-            RectF hPlus((REAL)x + 85, (REAL)y + 95, 25, 26);
-            g.FillRectangle(m_buttonBrush, hMinus); g.DrawRectangle(m_borderPen, hMinus);
-            g.FillRectangle(m_cardBrush, hVal); g.DrawRectangle(m_borderPen, hVal);
-            g.FillRectangle(m_buttonBrush, hPlus); g.DrawRectangle(m_borderPen, hPlus);
-            wchar_t hBuf[16]; swprintf_s(hBuf, 16, L"%02dsa", tm->inputHours);
-            g.DrawString(L"-", -1, &stepFont, PointF((REAL)x + 23, (REAL)y + 99), m_textBrush);
-            g.DrawString(hBuf, -1, &stepFont, PointF((REAL)x + 47, (REAL)y + 99), m_textBrush);
-            g.DrawString(L"+", -1, &stepFont, PointF((REAL)x + 92, (REAL)y + 99), m_textBrush);
+            // 3 Clean Input Boxes (Saat, Dakika, Saniye)
+            Font boxFont(L"Segoe UI", 9, FontStyleBold, UnitPoint);
+            RectF box1((REAL)x + 15, (REAL)y + 92, 100, 30);
+            RectF box2((REAL)x + 130, (REAL)y + 92, 100, 30);
+            RectF box3((REAL)x + 245, (REAL)y + 92, 100, 30);
 
-            // Mins stepper
-            RectF mMinus((REAL)x + 130, (REAL)y + 95, 25, 26);
-            RectF mVal((REAL)x + 157, (REAL)y + 95, 41, 26);
-            RectF mPlus((REAL)x + 200, (REAL)y + 95, 25, 26);
-            g.FillRectangle(m_buttonBrush, mMinus); g.DrawRectangle(m_borderPen, mMinus);
-            g.FillRectangle(m_cardBrush, mVal); g.DrawRectangle(m_borderPen, mVal);
-            g.FillRectangle(m_buttonBrush, mPlus); g.DrawRectangle(m_borderPen, mPlus);
-            wchar_t mBuf[16]; swprintf_s(mBuf, 16, L"%02ddk", tm->inputMins);
-            g.DrawString(L"-", -1, &stepFont, PointF((REAL)x + 138, (REAL)y + 99), m_textBrush);
-            g.DrawString(mBuf, -1, &stepFont, PointF((REAL)x + 162, (REAL)y + 99), m_textBrush);
-            g.DrawString(L"+", -1, &stepFont, PointF((REAL)x + 207, (REAL)y + 99), m_textBrush);
+            bool act1 = (tm->activeInputIndex == 0);
+            bool act2 = (tm->activeInputIndex == 1);
+            bool act3 = (tm->activeInputIndex == 2);
 
-            // Secs stepper
-            RectF sMinus((REAL)x + 245, (REAL)y + 95, 25, 26);
-            RectF sVal((REAL)x + 272, (REAL)y + 95, 41, 26);
-            RectF sPlus((REAL)x + 315, (REAL)y + 95, 25, 26);
-            g.FillRectangle(m_buttonBrush, sMinus); g.DrawRectangle(m_borderPen, sMinus);
-            g.FillRectangle(m_cardBrush, sVal); g.DrawRectangle(m_borderPen, sVal);
-            g.FillRectangle(m_buttonBrush, sPlus); g.DrawRectangle(m_borderPen, sPlus);
-            wchar_t sBuf[16]; swprintf_s(sBuf, 16, L"%02dsn", tm->inputSecs);
-            g.DrawString(L"-", -1, &stepFont, PointF((REAL)x + 253, (REAL)y + 99), m_textBrush);
-            g.DrawString(sBuf, -1, &stepFont, PointF((REAL)x + 277, (REAL)y + 99), m_textBrush);
-            g.DrawString(L"+", -1, &stepFont, PointF((REAL)x + 322, (REAL)y + 99), m_textBrush);
+            g.FillRectangle(m_buttonBrush, box1); g.DrawRectangle(act1 ? m_accentPen : m_borderPen, box1);
+            g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
+            g.FillRectangle(m_buttonBrush, box3); g.DrawRectangle(act3 ? m_accentPen : m_borderPen, box3);
+
+            std::wstring displayH = tm->hoursStr + (act1 && m_blinkOn ? L"|" : L"") + L" sa";
+            std::wstring displayM = tm->minsStr + (act2 && m_blinkOn ? L"|" : L"") + L" dk";
+            std::wstring displayS = tm->secsStr + (act3 && m_blinkOn ? L"|" : L"") + L" sn";
+
+            g.DrawString(displayH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 97), m_textBrush);
+            g.DrawString(displayM.c_str(), -1, &boxFont, PointF((REAL)x + 140, (REAL)y + 97), m_textBrush);
+            g.DrawString(displayS.c_str(), -1, &boxFont, PointF((REAL)x + 255, (REAL)y + 97), m_textBrush);
 
             // Quick Presets Row: [+1dk] [+5dk] [+15dk] [+1sa] [C]
             RectF p1((REAL)x + 15, (REAL)y + 128, 60, 26);
