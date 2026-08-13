@@ -162,35 +162,40 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         Gdiplus::Graphics g(memDC);
 
-        // Clear background
-        g.Clear(Gdiplus::Color(0, 0, 0, 0));
+        // Render full theme background
+        m_renderer.RenderBackground(g, m_windowWidth, m_windowHeight);
 
         // Render Clock Header
         m_renderer.RenderHeader(g, m_windowWidth, 50, m_toolsCollapsed);
 
         // Render active tool cards if expanded
         if (!m_toolsCollapsed) {
-            int curY = 55;
-            int cardW = 340;
-            int colX = 0;
-            int maxColH = 55;
+            if (m_tools.empty() && m_menuOpen) {
+                // Render guidance card on left side when empty and menu is open
+                m_renderer.RenderEmptyStateCard(g, 0, 55, 145, 145);
+            } else {
+                int curY = 55;
+                int cardW = 340;
+                int colX = 0;
+                int maxColH = 55;
 
-            RECT workArea;
-            SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-            int maxScreenH = workArea.bottom - workArea.top - 100;
+                RECT workArea;
+                SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
+                int maxScreenH = workArea.bottom - workArea.top - 100;
 
-            for (size_t i = 0; i < m_tools.size(); i++) {
-                int cardH = m_tools[i]->GetHeight();
-                
-                // Column overflow wrapping logic (Grid mode)
-                if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
-                    colX += 350;
-                    curY = 55;
+                for (size_t i = 0; i < m_tools.size(); i++) {
+                    int cardH = m_tools[i]->GetHeight();
+                    
+                    // Column overflow wrapping logic (Grid mode)
+                    if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
+                        colX += 350;
+                        curY = 55;
+                    }
+
+                    m_renderer.RenderToolCard(g, m_tools[i].get(), colX, curY, cardW, cardH);
+                    curY += cardH + 10;
+                    if (curY > maxColH) maxColH = curY;
                 }
-
-                m_renderer.RenderToolCard(g, m_tools[i].get(), colX, curY, cardW, cardH);
-                curY += cardH + 10;
-                if (curY > maxColH) maxColH = curY;
             }
         }
 

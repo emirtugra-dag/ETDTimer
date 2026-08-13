@@ -58,6 +58,8 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"SHOW_HIDE", {L"Göster / Gizle", L"Show / Hide"}},
     {"EXIT", {L"Çıkış", L"Exit"}},
     {"EXIT_APP", {L"❌ Uygulamayı Kapat", L"❌ Exit App"}},
+    {"ADD_TOOL_HINT", {L"➕ Araç Ekleyin", L"➕ Add a Tool"}},
+    {"CHOOSE_FROM_MENU", {L"Sağdaki menüden araç\nseçebilirsiniz.", L"Select a tool from\nthe menu on right."}},
     {"SCALE_85", {L"%85 (Küçük)", L"85% (Small)"}},
     {"SCALE_100", {L"%100 (Normal)", L"100% (Normal)"}},
     {"SCALE_120", {L"%120 (Büyük)", L"120% (Large)"}},

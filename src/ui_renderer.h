@@ -15,8 +15,10 @@ public:
     void InitGDIPlus();
     void ShutdownGDIPlus();
 
+    void RenderBackground(Gdiplus::Graphics& g, int width, int height);
     void RenderHeader(Gdiplus::Graphics& g, int width, int height, bool toolsCollapsed);
     void RenderToolCard(Gdiplus::Graphics& g, ToolCard* card, int x, int y, int width, int height);
+    void RenderEmptyStateCard(Gdiplus::Graphics& g, int x, int y, int width, int height);
     void RenderToolMenu(Gdiplus::Graphics& g, int x, int y, int width, int height);
     void RenderSettingsModal(Gdiplus::Graphics& g, int width, int height);
 

@@ -63,6 +63,28 @@ void UIRenderer::UpdateThemeBrushes() {
     }
 }
 
+void UIRenderer::RenderBackground(Graphics& g, int width, int height) {
+    UpdateThemeBrushes();
+    g.SetSmoothingMode(SmoothingModeAntiAlias);
+
+    RectF bgRect(0, 0, (REAL)width, (REAL)height);
+    g.FillRectangle(m_bgBrush, bgRect);
+}
+
+void UIRenderer::RenderEmptyStateCard(Graphics& g, int x, int y, int width, int height) {
+    g.SetSmoothingMode(SmoothingModeAntiAlias);
+
+    RectF cardRect((REAL)x, (REAL)y, (REAL)width, (REAL)height);
+    g.FillRectangle(m_cardBrush, cardRect);
+    g.DrawRectangle(m_borderPen, cardRect);
+
+    Font titleFont(L"Segoe UI", 9, FontStyleBold, UnitPoint);
+    Font textFont(L"Segoe UI", 8, FontStyleRegular, UnitPoint);
+
+    g.DrawString(SettingsManager::Instance().Text("ADD_TOOL_HINT"), -1, &titleFont, PointF((REAL)x + 10, (REAL)y + 20), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("CHOOSE_FROM_MENU"), -1, &textFont, PointF((REAL)x + 10, (REAL)y + 55), m_textDimBrush);
+}
+
 void UIRenderer::RenderHeader(Graphics& g, int width, int height, bool toolsCollapsed) {
     UpdateThemeBrushes();
     g.SetSmoothingMode(SmoothingModeAntiAlias);
