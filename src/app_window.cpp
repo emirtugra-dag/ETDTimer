@@ -45,6 +45,7 @@ bool AppWindow::Create() {
 
     SetTimer(m_hwnd, 1, 100, NULL);  // 100ms render & tool update timer
     SetTimer(m_hwnd, 2, 1000, NULL); // 1000ms fullscreen detection timer
+    SetTimer(m_hwnd, 3, 500, NULL);  // 500ms cursor blink timer
 
     RestoreState();
     RecalculateLayout();
@@ -149,6 +150,11 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             InvalidateRect(m_hwnd, NULL, FALSE);
         } else if (wParam == 2) {
             UpdateFullscreenDetection();
+        } else if (wParam == 3) {
+            static bool blink = false;
+            blink = !blink;
+            m_renderer.SetBlinkState(blink);
+            InvalidateRect(m_hwnd, NULL, FALSE);
         }
         return 0;
 
@@ -422,13 +428,49 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
 
-    case WM_MOUSEMOVE:
+    case WM_MOUSEMOVE: {
+        int x = LOWORD(lParam);
+        int y = HIWORD(lParam);
+        m_renderer.SetMousePos(x, y);
+
         if (m_dragging) {
             POINT pt;
             GetCursorPos(&pt);
             SetWindowPos(m_hwnd, NULL, pt.x - m_dragStartOffset.x, pt.y - m_dragStartOffset.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
         }
+
+        InvalidateRect(m_hwnd, NULL, FALSE);
         return 0;
+    }
+
+    case WM_SETCURSOR: {
+        POINT pt;
+        GetCursorPos(&pt);
+        ScreenToClient(m_hwnd, &pt);
+        int x = pt.x;
+        int y = pt.y;
+
+        bool isHovering = false;
+        if (y <= 50 && x >= m_windowWidth - 110 && x <= m_windowWidth - 10) isHovering = true;
+        if (m_menuOpen && x >= m_windowWidth - 185 && x <= m_windowWidth - 10 && y >= 50 && y <= 195) isHovering = true;
+        if (m_settingsOpen) isHovering = true;
+        if (!m_toolsCollapsed) {
+            int curY = 55;
+            for (auto& tool : m_tools) {
+                int cardH = tool->GetHeight();
+                if (y >= curY && y <= curY + cardH) {
+                    if (y >= curY + 25) isHovering = true;
+                }
+                curY += cardH + 10;
+            }
+        }
+
+        if (isHovering) {
+            SetCursor(LoadCursor(NULL, IDC_HAND));
+            return TRUE;
+        }
+        break;
+    }
 
     case WM_LBUTTONUP:
         if (m_dragging) {

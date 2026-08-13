@@ -63,6 +63,8 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"SCALE_85", {L"%85 (Küçük)", L"85% (Small)"}},
     {"SCALE_100", {L"%100 (Normal)", L"100% (Normal)"}},
     {"SCALE_120", {L"%120 (Büyük)", L"120% (Large)"}},
+    {"SCROLL_HINT", {L"▲/▼ Kaydırmak için tekerleği kullanın", L"▲/▼ Use scroll wheel to scroll"}},
+    {"SET_TIME_HINT", {L"Ayarlandığı Süre: %02d sa %02d dk", L"Set Time: %02d h %02d m"}},
     {"TURKISH", {L"Türkçe", L"Turkish"}},
     {"ENGLISH", {L"English", L"English"}}
 };
