@@ -1,65 +1,183 @@
-# ETDTimer 🕒⚡
+<div align="center">
 
-![ETDTimer Logo](etdtimer.png)
+<img src="docs/images/logo.png" alt="ETDTimer Logo" width="160" style="border-radius: 24px;" />
 
-**ETDTimer**, Windows işletim sistemleri için C++ (Win32 API & GDI+) ile geliştirilmiş, ultra hafif, yüksek performanslı ve sürekli ekranda duran (Floating Always-On-Top) bir saat, kronometre, sayaç ve Pomodoro yardımcı uygulamasıdır.
+# ETDTimer
 
----
+**Modern, Ultra-Lightweight & Modular Desktop Timer Suite for Windows**  
+*Windows için Modern, Ultra Hafif ve Modüler Masaüstü Zamanlayıcı Paketi*
 
-## 🌟 Özellikler / Features
-
-1. **Saat (Clock)**:
-   - Varsayılan olarak Saat ve Dakika (SS:DK) gösterimi.
-   - Ayarlar menüsünden istenirse saniye (SS:DK:SS) görünümü açılabilir.
-2. **Kronometre (Stopwatch)**:
-   - Başlat, Durdur, Sıfırla ve sınırsız Tur / Checkpoint ekleme özelliği.
-3. **Sayaç (Timer)**:
-   - **Süre Sayımı**: Belirli bir dakika/saat boyunca geriye sayım.
-   - **Hedef Saate Sayım**: Gün içerisindeki belirli bir saate kadar (ör. 17:30) geriye sayım.
-   - Süre dolduğunda özel sesli alarm bildirimi.
-4. **Pomodoro Zamanlayıcı**:
-   - Çalışma süresi, mola süresi, toplam hedef çalışma saati ve mola sayısı bilgilerine göre otomatik periyot planlaması yapar.
-   - Çalışma ve mola periyotları arasında otomatik geçiş ve sesli bildirim sağlar.
-5. **Tam Ekran Algılama (Auto-Hide on Fullscreen)**:
-   - Oyun oynarken veya tam ekran video izlerken uygulamayı otomatik olarak gizler / alta alır; masaüstüne dönüldüğünde tekrar en üste gelir.
-6. **Merdiven (Staircase / Accordion) Düzeni**:
-   - Başlangıçta sadece üstteki Saat çubuğu görünür. Sol alttaki 3 çizgili burger menüden eklenecek araçlar alta basamak stili eklenir.
-   - Tek bir araçtan en fazla 3 adet, toplamda en fazla 10 araç açılabilir. Ekran sığmadığında otomatik olarak yan yana ızgara düzenine geçer.
-   - Üstteki göz ikonu ile tüm araçlar anında gizlenebilir.
-7. **Çift Dil & Tema Desteği**:
-   - Türkçe ve İngilizce dil seçeneği.
-   - Açık (Light) ve Koyu (Dark) tema desteği.
-   - Özel MP3/WAV alarm sesi seçebilme.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D6.svg?logo=windows)](https://microsoft.com/windows)
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg?logo=c%2B%2B)](https://isocpp.org/)
+[![Win32 & GDI+](https://img.shields.io/badge/API-Win32%20%7C%20GDI%2B-0078D6)](https://learn.microsoft.com/en-us/windows/win32/)
+[![Languages: EN & TR](https://img.shields.io/badge/Languages-English%20%7C%20T%C3%BCrk%C3%A7e-brightgreen)](#language-dil)
+[![Build: Passing](https://img.shields.io/badge/Build-Passing-brightgreen)](#building-from-source--kaynak-koddan-derleme)
 
 ---
 
-## 📦 Kurulum Sihirbazı / Custom Setup Wizard
-
-Uygulama için 3. parti hiçbir yazılım kullanılmadan **C++ Win32 API** ile özel **`ETDTimerSetup.exe`** kurulum sihirbazı geliştirilmiştir.
-
-- Kurulum başında Türkçe / İngilizce dil seçeneği sunar.
-- Masaüstü Kısayolu ve Başlangıç kaydı (Autostart) seçeneği sunar.
-- `C:\Users\<Kullanıcı>\AppData\Local\Programs\ETDTimer` dizinine bağımsız olarak kurulur.
+### Language / Dil
+[ 🇬🇧 **English Readme** ](#-english) &nbsp;|&nbsp; [ 🇹🇷 **Türkçe Oku** ](#-türkçe)
 
 ---
 
-## 🛠️ Derleme / Build Instructions
+</div>
 
-Projeyi Windows üzerinde MinGW-w64 (`g++.exe`) ile derlemek için:
+<a name="english"></a>
+## 🇬🇧 English
+
+### 🌟 Overview
+**ETDTimer** is a high-performance, native C++ desktop application designed for Windows. Built directly on pure **Win32 API** and **GDI+**, it offers zero external GUI framework overhead, blistering startup speed, and minimal memory usage (<15 MB RAM). 
+
+Whether you need a sleek desktop clock, an accurate stopwatch, a countdown timer with target time capabilities, or a productive Pomodoro planner, ETDTimer delivers a smooth, glassmorphic UI tailored for modern desktop workflows.
+
+---
+
+### ✨ Key Features
+
+- 🕒 **Digital Desktop Clock & Compact "Clock Only" Mode**:
+  - Displays real-time digital clock with optional seconds display.
+  - One-click compact mode shrinks the window to an ultra-minimal desktop widget (190px / 240px dynamic sizing) with zero screen clutter and standalone Close (`✕`) / Settings (`⚙`) buttons.
+
+- ⏱️ **High-Precision Stopwatch**:
+  - Millisecond precision powered by Windows hardware performance counters (`GetTickCount64()`).
+  - Supports unlimited lap recording with smooth interactive mouse wheel scrolling.
+
+- ⏳ **Multimodal Countdown Timer**:
+  - **Duration Countdown Mode**: Enter Hours, Minutes, and Seconds directly via spacious, clean input boxes.
+  - **Target Time Countdown Mode**: Set a target time (e.g. `11:49` or `23:30`) and the app automatically calculates the exact countdown delta until that time arrives.
+
+- 🍅 **Smart Pomodoro Planner**:
+  - Automatically calculates work sessions and breaks based on total target hours.
+  - Real-time phase tracking (`Work Phase`, `Break Phase`, `Finished`).
+
+- 🎨 **Modern Glassmorphic UI & Scaling**:
+  - Dynamic DPI Scaling (%85 Small, %100 Normal, %120 Large) with crisp anti-aliased GDI+ rendering.
+  - **Rounded Corners Mode**: Win32 region clipping for sleek rounded window borders.
+  - Dark Mode & Light Mode support.
+
+- 🔊 **Audio Alerts & High-Pitched Digital Beep**:
+  - Custom audio file support (`.mp3`, `.wav`) or built-in crisp **2600 Hz high-pitched digital timer alarm** pattern (`Öt-bırak, öt-bırak!`).
+  - Runs in a background thread to prevent UI freezing.
+
+- 🛡️ **System Tray & Single Executable Deployment**:
+  - System Tray Icon integration with quick context menu (`Show / Hide`, `Exit`).
+  - Ships as a single self-contained installer (`ETDTimerSetup.exe`) signed with self-signed certificate.
+
+---
+
+### 🖼️ Screenshots
+
+<div align="center">
+
+#### 1. Compact Clock Only Mode / Kompakt Saat Modu
+<img src="docs/images/screenshot1_clock_only.png" alt="Clock Only Mode" width="400" />
+
+#### 2. Burger Menu & Modular Launcher / Araç Ekleme Menüsü
+<img src="docs/images/screenshot2_menu_view.png" alt="Burger Menu View" width="400" />
+
+#### 3. Full Modular Tools View / Modüler Araçlar (Stopwatch, Timer, Pomodoro)
+<img src="docs/images/screenshot3_full_tools.png" alt="Full Tools View" width="420" />
+
+#### 4. Settings & Customization Modal / Ayarlar Penceresi
+<img src="docs/images/screenshot4_settings.png" alt="Settings Modal" width="400" />
+
+</div>
+
+---
+
+### 🚀 Download & Installation
+
+1. Download the latest `ETDTimerSetup.exe` from the [Releases](https://github.com/emirtugra-dag/ETDTimer/releases) page.
+2. Run `ETDTimerSetup.exe` to install ETDTimer with desktop shortcuts, Start Menu entry, and an official Windows Control Panel uninstaller (`Uninstall.exe`).
+
+---
+
+### 🛠️ Building from Source
+
+**Prerequisites**:
+- MinGW-w64 (`g++` compiler supporting C++20)
+- Windows SDK (`windres`, `gdiplus`, `winmm`, `shlwapi`)
+
+**Build Command**:
+```powershell
+powershell -ExecutionPolicy Bypass -File "build_and_sign.ps1"
+```
+This compiles `ETDTimer.exe`, packs it into `ETDTimerSetup.exe`, and digitally signs both executables.
+
+---
+
+### 📜 Legal Disclaimer & License
+
+ETDTimer is released under the **MIT License**.
+
+> **Legal Notice**:  
+> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.
+
+Copyright (c) 2026 **Emir Tuğra Dağ**. All rights reserved.
+
+---
+
+<br />
+
+---
+
+<a name="türkçe"></a>
+## 🇹🇷 Türkçe
+
+### 🌟 Genel Bakış
+**ETDTimer**, Windows işletim sistemi için geliştirilmiş yüksek performanslı, yerel (native) bir C++ masaüstü zamanlayıcı uygulamasıdır. Doğrudan saf **Win32 API** ve **GDI+** üzerine inşa edilmiş olup hiçbir harici GUI kütüphanesi yükü taşımaz. Yıldırım hızında açılır ve minimum bellek tüketir (<15 MB RAM).
+
+Şık bir masaüstü saatine, hassas bir kronometreye, hedef saate göre sayabilen gelişmiş bir geri sayım sayacına veya verimliliğinizi artıracak bir Pomodoro planlayıcıya ihtiyacınız olduğunda ETDTimer size modern ve pürüzsüz bir arayüz sunar.
+
+---
+
+### ✨ Öne Çıkan Özellikler
+
+- 🕒 **Dijital Masaüstü Saati & Sadece Saat Modu**:
+  - İsteğe bağlı saniye gösterimi sunan dijital saat.
+  - Tek tıkla açılabilen **Sadece Saat Modu** sayesinde masaüstünüzde hiçbir fazlalık yer kaplamayan (190px / 240px dinamik boyutlu) şık bir saat penceresi.
+
+- ⏱️ **Yüksek Hassasiyetli Kronometre**:
+  - Windows donanım sayaçları (`GetTickCount64()`) ile milisaniye hassasiyetinde zaman takibi.
+  - Sınırsız tur kaydı (`Add Lap`) ve fare tekerleği ile kaydırılabilir tur listesi.
+
+- ⏳ **Çok Modlu Geri Sayım Sayacı**:
+  - **Süre Sayımı Modu**: Saat, Dakika ve Saniye kutularına doğrudan değer girerek geri sayım başlatın.
+  - **Hedef Saate Sayım Modu**: Hedef saati girin (örn: `11:49` veya `23:30`), uygulama belirtilen saate kalan süreyi otomatik hesaplayıp geri sayımı başlatsın.
+
+- 🍅 **Akıllı Pomodoro Planlayıcı**:
+  - Hedeflenen toplam çalışma saatine göre çalışma ve mola periyotlarını otomatik planlar.
+  - Canlı periyot takibi (`Çalışma Periyodu`, `Mola Periyodu`, `Tamamlandı!`).
+
+- 🎨 **Modern Glassmorphic Arayüz & Ölçeklendirme**:
+  - Dinamik Arayüz Ölçeklendirme (%85 Küçük, %100 Normal, %120 Büyük).
+  - **Yuvarlatılmış Kenarlar Modu**: Win32 region clipping ile yuvarlatılmış pencere köşeleri.
+  - Koyu (Dark) ve Açık (Light) tema desteği.
+
+- 🔊 **Sesli Uyarılar & Tiz Dijital Bipleme**:
+  - Özel ses dosyası yükleme (`.mp3`, `.wav`) veya yerleşik **2600 Hz tiz dijital kronometre bipleme** ritmi (`Öt-bırak, öt-bırak!`).
+  - Arka plan thread'inde çalışarak arayüzün takılmasını engeller.
+
+- 🛡️ **Sistem Tepsisi & Tek Tıkla Kurulum**:
+  - Sistem tepsisi (System Tray Icon) sağ tık menüsü (`Göster / Gizle`, `Çıkış`).
+  - Dijital olarak imzalanmış tek tıkla kurulan kurulum dosyası (`ETDTimerSetup.exe`).
+
+---
+
+### 🛠️ Kaynak Koddan Derleme
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File build_and_sign.ps1
+powershell -ExecutionPolicy Bypass -File "build_and_sign.ps1"
 ```
-
-Bu işlem:
-1. `res/resource.rc` dosyasını derler.
-2. `ETDTimer.exe` ve `ETDTimerSetup.exe` binary dosyalarını C++20 standardında sıfır harici DLL bağımlılığıyla derler.
-3. Dijital kod imzalama sertifikasını (Code Signing) otomatik oluşturup dijital olarak imzalar.
 
 ---
 
-## ⚖️ Yasal Bildirim & Lisans / Legal Disclaimer & License
+### 📜 Yasal Bildirim ve Lisans
 
-Bu yazılım 'olduğu gibi' (As-Is) sunulmaktadır. Geliştirici **Emir Tuğra Dağ**, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.
+ETDTimer **MIT Lisansı** ile lisanslanmıştır.
 
-Distributed under the **MIT License**. Copyright (c) 2026 **Emir Tuğra Dağ**.
+> **Yasal Bildirim & Sorumluluk Reddi**:  
+> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve tüm hakları Emir Tuğra Dağ'a aittir.
+
+Tüm Hakları Saklıdır © 2026 **Emir Tuğra Dağ**.
