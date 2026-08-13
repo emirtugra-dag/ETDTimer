@@ -113,7 +113,7 @@ void UIRenderer::RenderHeader(Graphics& g, int width, int height, bool toolsColl
 
     // Render App Name / Clock text
     Font clockFont(L"Segoe UI", 20, FontStyleBold, UnitPoint);
-    g.DrawString(timeBuf, -1, &clockFont, PointF(15, 10), m_textBrush);
+    g.DrawString(timeBuf, -1, &clockFont, PointF(15, 6), m_textBrush);
 
     // Render Top Control Buttons
     Font btnFont(L"Segoe UI Symbol", 13, FontStyleRegular, UnitPoint);
