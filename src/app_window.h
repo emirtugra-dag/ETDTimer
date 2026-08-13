@@ -47,8 +47,10 @@ private:
 
     bool m_isFullscreenActive = false;
 
-    int m_windowWidth = 320;
+    int m_windowWidth = 360;
     int m_windowHeight = 50; // Initial clock header height
+    int m_logicalWidth = 360;
+    int m_logicalHeight = 50;
 };
 
 #endif // APP_WINDOW_H

@@ -162,17 +162,25 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(m_hwnd, &ps);
 
+        float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
+        if (scale <= 0.1f) scale = 1.0f;
+
         HDC memDC = CreateCompatibleDC(hdc);
         HBITMAP memBitmap = CreateCompatibleBitmap(hdc, m_windowWidth, m_windowHeight);
         HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, memBitmap);
 
         Gdiplus::Graphics g(memDC);
+        g.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+        g.SetTextRenderingHint(Gdiplus::TextRenderingHintClearTypeGridFit);
+
+        // Apply scale transform for rendering logical canvas
+        g.ScaleTransform(scale, scale);
 
         // Render full theme background
-        m_renderer.RenderBackground(g, m_windowWidth, m_windowHeight);
+        m_renderer.RenderBackground(g, m_logicalWidth, m_logicalHeight);
 
         // Render Clock Header
-        m_renderer.RenderHeader(g, m_windowWidth, 50, m_toolsCollapsed);
+        m_renderer.RenderHeader(g, m_logicalWidth, 50, m_toolsCollapsed);
 
         // Render active tool cards if expanded
         if (!m_toolsCollapsed) {
@@ -187,7 +195,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
                 RECT workArea;
                 SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-                int maxScreenH = workArea.bottom - workArea.top - 100;
+                int maxScreenH = (int)((workArea.bottom - workArea.top - 100) / scale);
 
                 for (size_t i = 0; i < m_tools.size(); i++) {
                     int cardH = m_tools[i]->GetHeight();
@@ -207,12 +215,12 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Render Burger Menu popup
         if (m_menuOpen) {
-            m_renderer.RenderToolMenu(g, m_windowWidth - 185, 50, 175, 145);
+            m_renderer.RenderToolMenu(g, m_logicalWidth - 185, 50, 175, 145);
         }
 
         // Render Settings Modal overlay
         if (m_settingsOpen) {
-            m_renderer.RenderSettingsModal(g, m_windowWidth, m_windowHeight);
+            m_renderer.RenderSettingsModal(g, m_logicalWidth, m_logicalHeight);
         }
 
         BitBlt(hdc, 0, 0, m_windowWidth, m_windowHeight, memDC, 0, 0, SRCCOPY);
@@ -238,12 +246,17 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
 
     case WM_LBUTTONDOWN: {
-        int x = LOWORD(lParam);
-        int y = HIWORD(lParam);
+        float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
+        if (scale <= 0.1f) scale = 1.0f;
+
+        int physX = LOWORD(lParam);
+        int physY = HIWORD(lParam);
+        int x = (int)(physX / scale);
+        int y = (int)(physY / scale);
 
         // If Tool Menu is open and user clicks outside it, close menu immediately
         if (m_menuOpen) {
-            if (x < m_windowWidth - 185 || x > m_windowWidth - 10 || y < 45 || y > 195) {
+            if (x < m_logicalWidth - 185 || x > m_logicalWidth - 10 || y < 45 || y > 195) {
                 m_menuOpen = false;
                 RecalculateLayout();
                 // Continue to process click
@@ -253,8 +266,8 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         // Settings Modal Interaction
         if (m_settingsOpen) {
             int modalW = 320, modalH = 390;
-            int modalX = (m_windowWidth - modalW) / 2;
-            int modalY = (m_windowHeight - modalH) / 2;
+            int modalX = (m_logicalWidth - modalW) / 2;
+            int modalY = (m_logicalHeight - modalH) / 2;
 
             // Close X
             if (x >= modalX + modalW - 30 && x <= modalX + modalW && y >= modalY && y <= modalY + 30) {
@@ -347,19 +360,19 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Header controls (y <= 50)
         if (y <= 50) {
-            // Burger menu click [x: m_windowWidth - 110 .. m_windowWidth - 80]
-            if (x >= m_windowWidth - 110 && x <= m_windowWidth - 80) {
+            // Burger menu click [x: m_logicalWidth - 110 .. m_logicalWidth - 80]
+            if (x >= m_logicalWidth - 110 && x <= m_logicalWidth - 80) {
                 m_menuOpen = !m_menuOpen;
                 RecalculateLayout();
                 return 0;
             }
-            // Eye button click [x: m_windowWidth - 75 .. m_windowWidth - 45]
-            if (x >= m_windowWidth - 75 && x <= m_windowWidth - 45) {
+            // Eye button click [x: m_logicalWidth - 75 .. m_logicalWidth - 45]
+            if (x >= m_logicalWidth - 75 && x <= m_logicalWidth - 45) {
                 ToggleToolsCollapse();
                 return 0;
             }
-            // Gear button click [x: m_windowWidth - 40 .. m_windowWidth - 10]
-            if (x >= m_windowWidth - 40 && x <= m_windowWidth - 10) {
+            // Gear button click [x: m_logicalWidth - 40 .. m_logicalWidth - 10]
+            if (x >= m_logicalWidth - 40 && x <= m_logicalWidth - 10) {
                 m_settingsOpen = !m_settingsOpen;
                 RecalculateLayout();
                 return 0;
@@ -379,7 +392,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Menu selection interaction
         if (m_menuOpen) {
-            if (x >= m_windowWidth - 185 && x <= m_windowWidth - 10) {
+            if (x >= m_logicalWidth - 185 && x <= m_logicalWidth - 10) {
                 if (y >= 45 && y <= 78) AddTool(TOOL_STOPWATCH);
                 else if (y >= 78 && y <= 108) AddTool(TOOL_TIMER);
                 else if (y >= 108 && y <= 138) AddTool(TOOL_POMODORO);
@@ -399,18 +412,18 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             int colX = 0;
             RECT workArea;
             SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-            int maxScreenH = workArea.bottom - workArea.top - 100;
+            int maxScreenH = (int)((workArea.bottom - workArea.top - 100) / scale);
 
             for (size_t i = 0; i < m_tools.size(); i++) {
                 int cardH = m_tools[i]->GetHeight();
                 if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
-                    colX += 350;
+                    colX += 370;
                     curY = 55;
                 }
 
-                if (x >= colX && x <= colX + 340 && y >= curY && y <= curY + cardH) {
+                if (x >= colX && x <= colX + 360 && y >= curY && y <= curY + cardH) {
                     // Close button (X) click
-                    if (x >= colX + 305 && x <= colX + 335 && y >= curY + 5 && y <= curY + 30) {
+                    if (x >= colX + 325 && x <= colX + 355 && y >= curY + 5 && y <= curY + 30) {
                         RemoveTool(m_tools[i]->GetId());
                         return 0;
                     }
@@ -429,8 +442,14 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
 
     case WM_MOUSEMOVE: {
-        int x = LOWORD(lParam);
-        int y = HIWORD(lParam);
+        float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
+        if (scale <= 0.1f) scale = 1.0f;
+
+        int physX = LOWORD(lParam);
+        int physY = HIWORD(lParam);
+        int x = (int)(physX / scale);
+        int y = (int)(physY / scale);
+
         m_renderer.SetMousePos(x, y);
 
         if (m_dragging) {
@@ -444,15 +463,18 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
 
     case WM_SETCURSOR: {
+        float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
+        if (scale <= 0.1f) scale = 1.0f;
+
         POINT pt;
         GetCursorPos(&pt);
         ScreenToClient(m_hwnd, &pt);
-        int x = pt.x;
-        int y = pt.y;
+        int x = (int)(pt.x / scale);
+        int y = (int)(pt.y / scale);
 
         bool isHovering = false;
-        if (y <= 50 && x >= m_windowWidth - 110 && x <= m_windowWidth - 10) isHovering = true;
-        if (m_menuOpen && x >= m_windowWidth - 185 && x <= m_windowWidth - 10 && y >= 50 && y <= 195) isHovering = true;
+        if (y <= 50 && x >= m_logicalWidth - 110 && x <= m_logicalWidth - 10) isHovering = true;
+        if (m_menuOpen && x >= m_logicalWidth - 185 && x <= m_logicalWidth - 10 && y >= 50 && y <= 195) isHovering = true;
         if (m_settingsOpen) isHovering = true;
         if (!m_toolsCollapsed) {
             int curY = 55;
@@ -537,13 +559,16 @@ void AppWindow::ToggleToolsCollapse() {
 }
 
 void AppWindow::RecalculateLayout() {
+    float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
+    if (scale <= 0.1f) scale = 1.0f;
+
     if (m_toolsCollapsed || m_tools.empty()) {
-        m_windowWidth = 360;
-        m_windowHeight = 50;
+        m_logicalWidth = 360;
+        m_logicalHeight = 50;
     } else {
         RECT workArea;
         SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-        int maxScreenH = workArea.bottom - workArea.top - 100;
+        int maxScreenH = (int)((workArea.bottom - workArea.top - 100) / scale);
 
         int curY = 55;
         int maxH = 55;
@@ -559,19 +584,22 @@ void AppWindow::RecalculateLayout() {
             if (curY > maxH) maxH = curY;
         }
 
-        m_windowWidth = numCols * 370 - 10;
-        m_windowHeight = maxH;
+        m_logicalWidth = numCols * 370 - 10;
+        m_logicalHeight = maxH;
     }
 
     // Expand window dimensions dynamically if Settings modal or Burger menu is open!
     if (m_settingsOpen) {
-        if (m_windowWidth < 360) m_windowWidth = 360;
-        if (m_windowHeight < 390) m_windowHeight = 390;
+        if (m_logicalWidth < 360) m_logicalWidth = 360;
+        if (m_logicalHeight < 390) m_logicalHeight = 390;
     }
     if (m_menuOpen) {
-        if (m_windowWidth < 360) m_windowWidth = 360;
-        if (m_windowHeight < 205) m_windowHeight = 205;
+        if (m_logicalWidth < 360) m_logicalWidth = 360;
+        if (m_logicalHeight < 205) m_logicalHeight = 205;
     }
+
+    m_windowWidth = (int)(m_logicalWidth * scale + 0.5f);
+    m_windowHeight = (int)(m_logicalHeight * scale + 0.5f);
 
     SetWindowPos(m_hwnd, NULL, 0, 0, m_windowWidth, m_windowHeight, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
     InvalidateRect(m_hwnd, NULL, FALSE);
