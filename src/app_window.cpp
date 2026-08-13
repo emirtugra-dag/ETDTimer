@@ -371,14 +371,14 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         // Header controls (y <= 50)
         if (y <= 50) {
             if (SettingsManager::Instance().Get().clockOnlyMode) {
-                // Gear button click [x: m_logicalWidth - 70 .. m_logicalWidth - 42]
-                if (x >= m_logicalWidth - 70 && x <= m_logicalWidth - 42) {
+                // Gear button click [x: m_logicalWidth - 74 .. m_logicalWidth - 46]
+                if (x >= m_logicalWidth - 74 && x <= m_logicalWidth - 46) {
                     m_settingsOpen = !m_settingsOpen;
                     RecalculateLayout();
                     return 0;
                 }
-                // Close button (✕) click [x: m_logicalWidth - 36 .. m_logicalWidth - 8]
-                if (x >= m_logicalWidth - 36 && x <= m_logicalWidth - 8) {
+                // Close button (✕) click [x: m_logicalWidth - 40 .. m_logicalWidth - 12]
+                if (x >= m_logicalWidth - 40 && x <= m_logicalWidth - 12) {
                     PostQuitMessage(0);
                     return 0;
                 }
@@ -498,7 +498,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         bool isHovering = false;
         if (SettingsManager::Instance().Get().clockOnlyMode) {
-            if (y <= 50 && x >= m_logicalWidth - 70 && x <= m_logicalWidth - 8) isHovering = true;
+            if (y <= 50 && x >= m_logicalWidth - 74 && x <= m_logicalWidth - 12) isHovering = true;
         } else {
             if (y <= 50 && x >= m_logicalWidth - 110 && x <= m_logicalWidth - 10) isHovering = true;
             if (m_menuOpen && x >= m_logicalWidth - 185 && x <= m_logicalWidth - 10 && y >= 50 && y <= 195) isHovering = true;
@@ -592,7 +592,7 @@ void AppWindow::RecalculateLayout() {
 
     if (SettingsManager::Instance().Get().clockOnlyMode) {
         bool showSec = SettingsManager::Instance().Get().showSecondsInClock;
-        m_logicalWidth = showSec ? 180 : 135;
+        m_logicalWidth = showSec ? 240 : 190;
         m_logicalHeight = 50;
     } else if (m_toolsCollapsed || m_tools.empty()) {
         m_logicalWidth = 360;

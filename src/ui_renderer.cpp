@@ -119,21 +119,21 @@ void UIRenderer::RenderHeader(Graphics& g, int width, int height, bool toolsColl
     Font btnFont(L"Segoe UI Symbol", 13, FontStyleRegular, UnitPoint);
     
     if (SettingsManager::Instance().Get().clockOnlyMode) {
-        // Clock Only Mode: Hide ☰ Burger Menu and 👁 Eye button! Show ⚙ Gear and ✕ Close Buttons
-        // ⚙ Settings Gear Button [x: width - 70]
-        RectF gearBtn((REAL)width - 70, 10, 28, 28);
-        bool hoverGear = (m_mouseX >= width - 70 && m_mouseX <= width - 42 && m_mouseY >= 10 && m_mouseY <= 38);
+        // Clock Only Mode: Show Clock, Settings Gear (⚙), and Close App (✕) buttons!
+        // ⚙ Settings Gear Button [x: width - 74]
+        RectF gearBtn((REAL)width - 74, 10, 28, 28);
+        bool hoverGear = (m_mouseX >= width - 74 && m_mouseX <= width - 46 && m_mouseY >= 10 && m_mouseY <= 38);
         g.FillRectangle(hoverGear ? m_buttonHoverBrush : m_buttonBrush, gearBtn);
         g.DrawRectangle(hoverGear ? m_accentPen : m_borderPen, gearBtn);
-        g.DrawString(L"⚙", -1, &btnFont, PointF((REAL)width - 66, 12), m_textBrush);
+        g.DrawString(L"⚙", -1, &btnFont, PointF((REAL)width - 70, 12), m_textBrush);
 
-        // ✕ Close App Button [x: width - 36]
-        RectF closeBtn((REAL)width - 36, 10, 28, 28);
-        bool hoverClose = (m_mouseX >= width - 36 && m_mouseX <= width - 8 && m_mouseY >= 10 && m_mouseY <= 38);
+        // ✕ Close App Button [x: width - 40]
+        RectF closeBtn((REAL)width - 40, 10, 28, 28);
+        bool hoverClose = (m_mouseX >= width - 40 && m_mouseX <= width - 12 && m_mouseY >= 10 && m_mouseY <= 38);
         SolidBrush redBrush(Color(255, 235, 87, 87));
         g.FillRectangle(hoverClose ? m_buttonHoverBrush : m_buttonBrush, closeBtn);
         g.DrawRectangle(hoverClose ? m_accentPen : m_borderPen, closeBtn);
-        g.DrawString(L"✕", -1, &btnFont, PointF((REAL)width - 31, 12), hoverClose ? &redBrush : m_textBrush);
+        g.DrawString(L"✕", -1, &btnFont, PointF((REAL)width - 35, 12), hoverClose ? &redBrush : m_textBrush);
         return;
     }
 
