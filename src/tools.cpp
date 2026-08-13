@@ -126,20 +126,20 @@ bool TimerTool::OnLButtonDown(int x, int y) {
 
     if (!m_running) {
         if (m_mode == TIMER_MODE_DURATION) {
-            // 3 Clean Input Boxes (Saat, Dakika, Saniye): y [92, 122]
-            if (x >= 15 && x <= 115 && y >= 92 && y <= 122) { activeInputIndex = 0; return true; } // Hours box
-            if (x >= 130 && x <= 230 && y >= 92 && y <= 122) { activeInputIndex = 1; return true; } // Mins box
-            if (x >= 245 && x <= 345 && y >= 92 && y <= 122) { activeInputIndex = 2; return true; } // Secs box
+            // 3 Clean Input Boxes (Saat, Dakika, Saniye): y [96, 126]
+            if (x >= 15 && x <= 115 && y >= 96 && y <= 126) { activeInputIndex = 0; return true; } // Hours box
+            if (x >= 130 && x <= 230 && y >= 96 && y <= 126) { activeInputIndex = 1; return true; } // Mins box
+            if (x >= 245 && x <= 345 && y >= 96 && y <= 126) { activeInputIndex = 2; return true; } // Secs box
         } else {
-            // 2 Clean Input Boxes (Hedef Saat, Hedef Dakika): y [92, 122]
-            if (x >= 15 && x <= 175 && y >= 92 && y <= 122) { activeInputIndex = 0; return true; } // Target Hours box
-            if (x >= 185 && x <= 345 && y >= 92 && y <= 122) { activeInputIndex = 1; return true; } // Target Mins box
+            // 2 Clean Input Boxes (Hedef Saat, Hedef Dakika): y [96, 126]
+            if (x >= 15 && x <= 175 && y >= 96 && y <= 126) { activeInputIndex = 0; return true; } // Target Hours box
+            if (x >= 185 && x <= 345 && y >= 96 && y <= 126) { activeInputIndex = 1; return true; } // Target Mins box
         }
 
         activeInputIndex = -1;
 
-        // Start/Pause Button (stopped state): x [15, 215], y [132, 164]
-        if (x >= 15 && x <= 215 && y >= 132 && y <= 164) {
+        // Start/Pause Button (stopped state): x [15, 215], y [136, 166]
+        if (x >= 15 && x <= 215 && y >= 136 && y <= 166) {
             if (m_mode == TIMER_MODE_DURATION) {
                 inputHours = _wtoi(hoursStr.c_str());
                 inputMins = _wtoi(minsStr.c_str());
@@ -166,8 +166,8 @@ bool TimerTool::OnLButtonDown(int x, int y) {
             return true;
         }
 
-        // Reset Button (stopped state): x [225, 345], y [132, 164]
-        if (x >= 225 && x <= 345 && y >= 132 && y <= 164) {
+        // Reset Button (stopped state): x [225, 345], y [136, 166]
+        if (x >= 225 && x <= 345 && y >= 136 && y <= 166) {
             m_running = false;
             m_finished = false;
             if (m_mode == TIMER_MODE_DURATION) {
@@ -179,15 +179,15 @@ bool TimerTool::OnLButtonDown(int x, int y) {
             return true;
         }
     } else {
-        // Start/Pause (Pause) Button (running state): x [15, 215], y [92, 125]
-        if (x >= 15 && x <= 215 && y >= 92 && y <= 125) {
+        // Start/Pause (Pause) Button (running state): x [15, 215], y [96, 126]
+        if (x >= 15 && x <= 215 && y >= 96 && y <= 126) {
             m_remainingSec = GetRemainingSec();
             m_running = false;
             return true;
         }
 
-        // Reset Button (running state): x [225, 345], y [92, 125]
-        if (x >= 225 && x <= 345 && y >= 92 && y <= 125) {
+        // Reset Button (running state): x [225, 345], y [96, 126]
+        if (x >= 225 && x <= 345 && y >= 96 && y <= 126) {
             m_running = false;
             m_finished = false;
             return true;

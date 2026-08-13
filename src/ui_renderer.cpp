@@ -271,16 +271,18 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
             else swprintf_s(buf, 64, L"%02d dk", mins);
         }
 
-        g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 58), m_textBrush);
-
         if (!tm->IsRunning()) {
+            // Draw digit preview in 16pt Bold when stopped to leave 14px gap before input boxes
+            Font timerDigitFont(L"Segoe UI", 16, FontStyleBold, UnitPoint);
+            g.DrawString(buf, -1, &timerDigitFont, PointF((REAL)x + 15, (REAL)y + 60), m_textBrush);
+
             Font boxFont(L"Segoe UI", 9, FontStyleBold, UnitPoint);
 
             if (tm->GetMode() == TIMER_MODE_DURATION) {
-                // 3 Clean Input Boxes (Saat, Dakika, Saniye)
-                RectF box1((REAL)x + 15, (REAL)y + 92, 100, 30);
-                RectF box2((REAL)x + 130, (REAL)y + 92, 100, 30);
-                RectF box3((REAL)x + 245, (REAL)y + 92, 100, 30);
+                // 3 Clean Input Boxes (Saat, Dakika, Saniye) at y = 96
+                RectF box1((REAL)x + 15, (REAL)y + 96, 100, 30);
+                RectF box2((REAL)x + 130, (REAL)y + 96, 100, 30);
+                RectF box3((REAL)x + 245, (REAL)y + 96, 100, 30);
 
                 bool act1 = (tm->activeInputIndex == 0);
                 bool act2 = (tm->activeInputIndex == 1);
@@ -294,13 +296,13 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
                 std::wstring displayM = tm->minsStr + (act2 && m_blinkOn ? L"|" : L"") + L" dk";
                 std::wstring displayS = tm->secsStr + (act3 && m_blinkOn ? L"|" : L"") + L" sn";
 
-                g.DrawString(displayH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 97), m_textBrush);
-                g.DrawString(displayM.c_str(), -1, &boxFont, PointF((REAL)x + 140, (REAL)y + 97), m_textBrush);
-                g.DrawString(displayS.c_str(), -1, &boxFont, PointF((REAL)x + 255, (REAL)y + 97), m_textBrush);
+                g.DrawString(displayH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 101), m_textBrush);
+                g.DrawString(displayM.c_str(), -1, &boxFont, PointF((REAL)x + 140, (REAL)y + 101), m_textBrush);
+                g.DrawString(displayS.c_str(), -1, &boxFont, PointF((REAL)x + 255, (REAL)y + 101), m_textBrush);
             } else {
-                // 2 Clean Input Boxes (Hedef Saat, Hedef Dakika - e.g. 11 sa 49 dk)
-                RectF box1((REAL)x + 15, (REAL)y + 92, 160, 30);
-                RectF box2((REAL)x + 185, (REAL)y + 92, 160, 30);
+                // 2 Clean Input Boxes (Hedef Saat, Hedef Dakika - e.g. 11 sa 49 dk) at y = 96
+                RectF box1((REAL)x + 15, (REAL)y + 96, 160, 30);
+                RectF box2((REAL)x + 185, (REAL)y + 96, 160, 30);
 
                 bool act1 = (tm->activeInputIndex == 0);
                 bool act2 = (tm->activeInputIndex == 1);
@@ -309,39 +311,42 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
                 g.FillRectangle(m_buttonBrush, box2); g.DrawRectangle(act2 ? m_accentPen : m_borderPen, box2);
 
                 std::wstring displayTH = L"Hedef Saat: " + tm->targetHoursStr + (act1 && m_blinkOn ? L"|" : L"");
-                std::wstring displayTM = L"Hedef Dakika: " + tm->targetMinsStr + (act2 && m_blinkOn ? L"|" : L"");
+                std::wstring displayTM = L"Hedef Dk: " + tm->targetMinsStr + (act2 && m_blinkOn ? L"|" : L"");
 
-                g.DrawString(displayTH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 97), m_textBrush);
-                g.DrawString(displayTM.c_str(), -1, &boxFont, PointF((REAL)x + 195, (REAL)y + 97), m_textBrush);
+                g.DrawString(displayTH.c_str(), -1, &boxFont, PointF((REAL)x + 25, (REAL)y + 101), m_textBrush);
+                g.DrawString(displayTM.c_str(), -1, &boxFont, PointF((REAL)x + 195, (REAL)y + 101), m_textBrush);
             }
 
-            // Start/Pause & Reset Buttons (Stopped state)
-            RectF startBtn((REAL)x + 15, (REAL)y + 132, 200, 30);
-            RectF resetBtn((REAL)x + 225, (REAL)y + 132, 120, 30);
+            // Start/Pause & Reset Buttons (Stopped state) at y = 136
+            RectF startBtn((REAL)x + 15, (REAL)y + 136, 200, 30);
+            RectF resetBtn((REAL)x + 225, (REAL)y + 136, 120, 30);
 
-            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 132 && m_mouseY <= y + 164);
-            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 132 && m_mouseY <= y + 164);
+            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 136 && m_mouseY <= y + 166);
+            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 136 && m_mouseY <= y + 166);
 
             g.FillRectangle(hs ? m_buttonHoverBrush : m_buttonBrush, startBtn); g.DrawRectangle(hs ? m_accentPen : m_borderPen, startBtn);
             g.FillRectangle(hr ? m_buttonHoverBrush : m_buttonBrush, resetBtn); g.DrawRectangle(hr ? m_accentPen : m_borderPen, resetBtn);
 
             const wchar_t* stTxt = SettingsManager::Instance().Text("START");
-            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 138), m_textBrush);
-            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 138), m_textBrush);
+            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 142), m_textBrush);
+            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 142), m_textBrush);
         } else {
-            // Start/Pause & Reset Buttons (Running state - compact height)
-            RectF startBtn((REAL)x + 15, (REAL)y + 92, 200, 32);
-            RectF resetBtn((REAL)x + 225, (REAL)y + 92, 120, 32);
+            // Running state: large 24pt digits at y = 55
+            g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 55), m_textBrush);
 
-            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 92 && m_mouseY <= y + 124);
-            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 92 && m_mouseY <= y + 124);
+            // Start/Pause & Reset Buttons (Running state - compact height) at y = 96
+            RectF startBtn((REAL)x + 15, (REAL)y + 96, 200, 30);
+            RectF resetBtn((REAL)x + 225, (REAL)y + 96, 120, 30);
+
+            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 96 && m_mouseY <= y + 126);
+            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 96 && m_mouseY <= y + 126);
 
             g.FillRectangle(hs ? m_buttonHoverBrush : m_buttonBrush, startBtn); g.DrawRectangle(hs ? m_accentPen : m_borderPen, startBtn);
             g.FillRectangle(hr ? m_buttonHoverBrush : m_buttonBrush, resetBtn); g.DrawRectangle(hr ? m_accentPen : m_borderPen, resetBtn);
 
             const wchar_t* stTxt = SettingsManager::Instance().Text("PAUSE");
-            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 99), m_textBrush);
-            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 99), m_textBrush);
+            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 102), m_textBrush);
+            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 102), m_textBrush);
         }
 
     } else if (card->GetType() == TOOL_POMODORO) {
