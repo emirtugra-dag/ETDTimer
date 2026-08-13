@@ -97,7 +97,7 @@ public:
     void OnCharInput(wchar_t ch) override;
 
     int GetHeight() const override {
-        return m_running ? 135 : 175;
+        return 175;
     }
 
     TimerMode GetMode() const { return m_mode; }

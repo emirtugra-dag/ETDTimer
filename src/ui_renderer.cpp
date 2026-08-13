@@ -334,19 +334,21 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
             // Running state: large 24pt digits at y = 55
             g.DrawString(buf, -1, &digitFont, PointF((REAL)x + 15, (REAL)y + 55), m_textBrush);
 
-            // Start/Pause & Reset Buttons (Running state - compact height) at y = 96
-            RectF startBtn((REAL)x + 15, (REAL)y + 96, 200, 30);
-            RectF resetBtn((REAL)x + 225, (REAL)y + 96, 120, 30);
+            g.DrawString(L"⏳ Geri Sayım Devam Ediyor...", -1, &smallFont, PointF((REAL)x + 15, (REAL)y + 98), m_textDimBrush);
 
-            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 96 && m_mouseY <= y + 126);
-            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 96 && m_mouseY <= y + 126);
+            // Start/Pause & Reset Buttons (Running state - fixed y = 136)
+            RectF startBtn((REAL)x + 15, (REAL)y + 136, 200, 30);
+            RectF resetBtn((REAL)x + 225, (REAL)y + 136, 120, 30);
+
+            bool hs = (m_mouseX >= x + 15 && m_mouseX <= x + 215 && m_mouseY >= y + 136 && m_mouseY <= y + 166);
+            bool hr = (m_mouseX >= x + 225 && m_mouseX <= x + 345 && m_mouseY >= y + 136 && m_mouseY <= y + 166);
 
             g.FillRectangle(hs ? m_buttonHoverBrush : m_buttonBrush, startBtn); g.DrawRectangle(hs ? m_accentPen : m_borderPen, startBtn);
             g.FillRectangle(hr ? m_buttonHoverBrush : m_buttonBrush, resetBtn); g.DrawRectangle(hr ? m_accentPen : m_borderPen, resetBtn);
 
             const wchar_t* stTxt = SettingsManager::Instance().Text("PAUSE");
-            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 102), m_textBrush);
-            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 102), m_textBrush);
+            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 90, (REAL)y + 142), m_textBrush);
+            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 265, (REAL)y + 142), m_textBrush);
         }
 
     } else if (card->GetType() == TOOL_POMODORO) {

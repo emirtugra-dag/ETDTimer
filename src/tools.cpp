@@ -179,15 +179,15 @@ bool TimerTool::OnLButtonDown(int x, int y) {
             return true;
         }
     } else {
-        // Start/Pause (Pause) Button (running state): x [15, 215], y [96, 126]
-        if (x >= 15 && x <= 215 && y >= 96 && y <= 126) {
+        // Start/Pause (Pause) Button (running state): x [15, 215], y [136, 166]
+        if (x >= 15 && x <= 215 && y >= 136 && y <= 166) {
             m_remainingSec = GetRemainingSec();
             m_running = false;
             return true;
         }
 
-        // Reset Button (running state): x [225, 345], y [96, 126]
-        if (x >= 225 && x <= 345 && y >= 96 && y <= 126) {
+        // Reset Button (running state): x [225, 345], y [136, 166]
+        if (x >= 225 && x <= 345 && y >= 136 && y <= 166) {
             m_running = false;
             m_finished = false;
             return true;
