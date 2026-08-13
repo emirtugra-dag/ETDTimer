@@ -181,7 +181,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 m_renderer.RenderEmptyStateCard(g, 0, 55, 145, 145);
             } else {
                 int curY = 55;
-                int cardW = 340;
+                int cardW = 360;
                 int colX = 0;
                 int maxColH = 55;
 
@@ -194,7 +194,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                     
                     // Column overflow wrapping logic (Grid mode)
                     if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
-                        colX += 350;
+                        colX += 370;
                         curY = 55;
                     }
 
@@ -538,7 +538,7 @@ void AppWindow::ToggleToolsCollapse() {
 
 void AppWindow::RecalculateLayout() {
     if (m_toolsCollapsed || m_tools.empty()) {
-        m_windowWidth = 340;
+        m_windowWidth = 360;
         m_windowHeight = 50;
     } else {
         RECT workArea;
@@ -559,17 +559,17 @@ void AppWindow::RecalculateLayout() {
             if (curY > maxH) maxH = curY;
         }
 
-        m_windowWidth = numCols * 350 - 10;
+        m_windowWidth = numCols * 370 - 10;
         m_windowHeight = maxH;
     }
 
     // Expand window dimensions dynamically if Settings modal or Burger menu is open!
     if (m_settingsOpen) {
-        if (m_windowWidth < 340) m_windowWidth = 340;
+        if (m_windowWidth < 360) m_windowWidth = 360;
         if (m_windowHeight < 390) m_windowHeight = 390;
     }
     if (m_menuOpen) {
-        if (m_windowWidth < 340) m_windowWidth = 340;
+        if (m_windowWidth < 360) m_windowWidth = 360;
         if (m_windowHeight < 205) m_windowHeight = 205;
     }
 

@@ -46,7 +46,7 @@ protected:
     ToolType m_type;
     int m_id;
     bool m_hidden = false;
-    int m_width = 340;
+    int m_width = 360;
     int m_height = 120;
     static int s_nextId;
 };
@@ -96,7 +96,7 @@ public:
     void OnCharInput(wchar_t ch) override;
 
     int GetHeight() const override {
-        return m_running ? 135 : 180;
+        return m_running ? 135 : 200;
     }
 
     TimerMode GetMode() const { return m_mode; }
@@ -106,7 +106,8 @@ public:
 
     int inputHours = 0;
     int inputMins = 15;
-    int activeInputIndex = -1;
+    int inputSecs = 0;
+    int activeInputIndex = -1; // 0: hrs, 1: mins, 2: secs
 
 private:
     TimerMode m_mode = TIMER_MODE_DURATION;

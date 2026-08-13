@@ -94,37 +94,51 @@ void TimerTool::Update(DWORD deltaMs) {
 }
 
 bool TimerTool::OnLButtonDown(int x, int y) {
-    // Mode toggle tabs: Mode 0 [15, 160], Mode 1 [170, 325], y [30, 56]
+    // Mode toggle tabs: Mode 0 [15, 175], Mode 1 [185, 345], y [30, 56]
     if (y >= 30 && y <= 56) {
-        if (x >= 15 && x <= 160) {
+        if (x >= 15 && x <= 175) {
             m_mode = TIMER_MODE_DURATION;
             return true;
         }
-        if (x >= 170 && x <= 325) {
+        if (x >= 185 && x <= 345) {
             m_mode = TIMER_MODE_TARGET_TIME;
             return true;
         }
     }
 
     if (!m_running) {
-        // Quick Presets Row: y [95, 122]
+        // Direct Stepper Row: y [95, 122]
         if (y >= 95 && y <= 122) {
-            if (x >= 15 && x <= 85) { inputMins += 1; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +1dk
-            if (x >= 95 && x <= 165) { inputMins += 5; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +5dk
-            if (x >= 175 && x <= 245) { inputMins += 15; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +15dk
-            if (x >= 255 && x <= 325) { inputHours += 1; return true; } // +1sa
+            // Hours - / +
+            if (x >= 15 && x <= 40) { if (inputHours > 0) inputHours--; return true; }
+            if (x >= 85 && x <= 110) { inputHours++; return true; }
+            // Mins - / +
+            if (x >= 130 && x <= 155) { if (inputMins > 0) inputMins--; return true; }
+            if (x >= 200 && x <= 225) { inputMins = (inputMins + 1) % 60; return true; }
+            // Secs - / +
+            if (x >= 245 && x <= 270) { if (inputSecs > 0) inputSecs--; return true; }
+            if (x >= 315 && x <= 340) { inputSecs = (inputSecs + 5) % 60; return true; }
         }
 
-        // Start/Pause Button (stopped state): x [15, 205], y [135, 168]
-        if (x >= 15 && x <= 205 && y >= 135 && y <= 168) {
+        // Quick Presets Row: y [128, 154]
+        if (y >= 128 && y <= 154) {
+            if (x >= 15 && x <= 75) { inputMins += 1; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +1dk
+            if (x >= 82 && x <= 142) { inputMins += 5; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +5dk
+            if (x >= 149 && x <= 209) { inputMins += 15; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +15dk
+            if (x >= 216 && x <= 276) { inputHours += 1; return true; } // +1sa
+            if (x >= 283 && x <= 345) { inputHours = 0; inputMins = 0; inputSecs = 0; return true; } // Temizle
+        }
+
+        // Start/Pause Button (stopped state): x [15, 215], y [162, 192]
+        if (x >= 15 && x <= 215 && y >= 162 && y <= 192) {
             if (m_mode == TIMER_MODE_DURATION) {
-                m_remainingSec = inputHours * 3600 + inputMins * 60;
+                m_remainingSec = inputHours * 3600 + inputMins * 60 + inputSecs;
                 if (m_remainingSec <= 0) m_remainingSec = 60;
                 m_initialSec = m_remainingSec;
             } else {
                 SYSTEMTIME st;
                 GetLocalTime(&st);
-                int targetSec = inputHours * 3600 + inputMins * 60;
+                int targetSec = inputHours * 3600 + inputMins * 60 + inputSecs;
                 int currentSec = st.wHour * 3600 + st.wMinute * 60 + st.wSecond;
                 int diff = targetSec - currentSec;
                 if (diff <= 0) diff += 86400; // Next day
@@ -136,28 +150,28 @@ bool TimerTool::OnLButtonDown(int x, int y) {
             return true;
         }
 
-        // Reset Button (stopped state): x [215, 325], y [135, 168]
-        if (x >= 215 && x <= 325 && y >= 135 && y <= 168) {
+        // Reset Button (stopped state): x [225, 345], y [162, 192]
+        if (x >= 225 && x <= 345 && y >= 162 && y <= 192) {
             m_running = false;
             m_finished = false;
             if (m_mode == TIMER_MODE_DURATION) {
-                m_remainingSec = inputHours * 3600 + inputMins * 60;
+                m_remainingSec = inputHours * 3600 + inputMins * 60 + inputSecs;
             }
             return true;
         }
     } else {
-        // Start/Pause (Pause) Button (running state): x [15, 205], y [92, 125]
-        if (x >= 15 && x <= 205 && y >= 92 && y <= 125) {
+        // Start/Pause (Pause) Button (running state): x [15, 215], y [92, 125]
+        if (x >= 15 && x <= 215 && y >= 92 && y <= 125) {
             m_running = false;
             return true;
         }
 
-        // Reset Button (running state): x [215, 325], y [92, 125]
-        if (x >= 215 && x <= 325 && y >= 92 && y <= 125) {
+        // Reset Button (running state): x [225, 345], y [92, 125]
+        if (x >= 225 && x <= 345 && y >= 92 && y <= 125) {
             m_running = false;
             m_finished = false;
             if (m_mode == TIMER_MODE_DURATION) {
-                m_remainingSec = inputHours * 3600 + inputMins * 60;
+                m_remainingSec = inputHours * 3600 + inputMins * 60 + inputSecs;
             }
             return true;
         }
@@ -179,15 +193,18 @@ PomodoroTool::PomodoroTool() : ToolCard(TOOL_POMODORO) {
 void PomodoroTool::ComputePlan() {
     int wMin = _wtoi(workMinStr.c_str());
     int bMin = _wtoi(breakMinStr.c_str());
-    int numB = _wtoi(numBreaksStr.c_str());
+    int tHrs = _wtoi(targetHoursStr.c_str());
 
     if (wMin <= 0) wMin = 25;
     if (bMin <= 0) bMin = 5;
-    if (numB < 0) numB = 4;
+    if (tHrs <= 0) tHrs = 4;
 
     m_workSec = wMin * 60;
     m_breakSec = bMin * 60;
-    m_totalWorkSessions = numB + 1;
+
+    int targetMins = tHrs * 60;
+    int cycleMins = wMin + bMin;
+    m_totalWorkSessions = std::max(1, targetMins / cycleMins);
     m_currentSession = 1;
     m_remainingSec = m_workSec;
     m_state = POMO_IDLE;
@@ -226,28 +243,26 @@ void PomodoroTool::Update(DWORD deltaMs) {
 }
 
 bool PomodoroTool::OnLButtonDown(int x, int y) {
-    // Inputs:
-    // Work min box: x [15, 85], y [95, 120]
-    if (x >= 15 && x <= 85 && y >= 95 && y <= 120) { activeInputIndex = 0; return true; }
-    // Break min box: x [95, 165], y [95, 120]
-    if (x >= 95 && x <= 165 && y >= 95 && y <= 120) { activeInputIndex = 1; return true; }
-    // Target Hours box: x [175, 245], y [95, 120]
-    if (x >= 175 && x <= 245 && y >= 95 && y <= 120) { activeInputIndex = 2; return true; }
-    // Num Breaks box: x [255, 325], y [95, 120]
-    if (x >= 255 && x <= 325 && y >= 95 && y <= 120) { activeInputIndex = 3; return true; }
+    // 3 Input Parameter Boxes:
+    // Work min box: x [15, 115], y [95, 121]
+    if (x >= 15 && x <= 115 && y >= 95 && y <= 121) { activeInputIndex = 0; return true; }
+    // Break min box: x [130, 230], y [95, 121]
+    if (x >= 130 && x <= 230 && y >= 95 && y <= 121) { activeInputIndex = 1; return true; }
+    // Target Hours box: x [245, 345], y [95, 121]
+    if (x >= 245 && x <= 345 && y >= 95 && y <= 121) { activeInputIndex = 2; return true; }
 
     activeInputIndex = -1;
 
-    // Calculate & Start Button: x [15, 210], y [155, 188]
-    if (x >= 15 && x <= 210 && y >= 155 && y <= 188) {
+    // Calculate & Start Button: x [15, 220], y [155, 188]
+    if (x >= 15 && x <= 220 && y >= 155 && y <= 188) {
         ComputePlan();
         m_state = POMO_WORK;
         m_running = true;
         return true;
     }
 
-    // Reset Button: x [220, 325], y [155, 188]
-    if (x >= 220 && x <= 325 && y >= 155 && y <= 188) {
+    // Reset Button: x [230, 345], y [155, 188]
+    if (x >= 230 && x <= 345 && y >= 155 && y <= 188) {
         ComputePlan();
         return true;
     }
@@ -260,7 +275,6 @@ void PomodoroTool::OnCharInput(wchar_t ch) {
     if (activeInputIndex == 0) target = &workMinStr;
     else if (activeInputIndex == 1) target = &breakMinStr;
     else if (activeInputIndex == 2) target = &targetHoursStr;
-    else if (activeInputIndex == 3) target = &numBreaksStr;
 
     if (target) {
         if (ch == VK_BACK) {
