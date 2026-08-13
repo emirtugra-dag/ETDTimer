@@ -68,14 +68,15 @@ public:
     }
 
     bool IsRunning() const { return m_running; }
-    DWORD GetElapsedMs() const { return m_elapsedMs; }
+    DWORD GetElapsedMs() const;
     const std::vector<LapRecord>& GetLaps() const { return m_laps; }
     int GetScrollOffset() const { return m_scrollOffset; }
     void ScrollLaps(int delta) { m_scrollOffset = std::max(0, m_scrollOffset + delta); }
 
 private:
     bool m_running = false;
-    DWORD m_elapsedMs = 0;
+    ULONGLONG m_lastStartTick = 0;
+    ULONGLONG m_accumulatedMs = 0;
     std::vector<LapRecord> m_laps;
     int m_scrollOffset = 0;
 };
@@ -101,7 +102,7 @@ public:
 
     TimerMode GetMode() const { return m_mode; }
     bool IsRunning() const { return m_running; }
-    int GetRemainingSec() const { return m_remainingSec; }
+    int GetRemainingSec() const;
     int GetInitialSec() const { return m_initialSec; }
 
     int inputHours = 0;
@@ -112,6 +113,8 @@ public:
 private:
     TimerMode m_mode = TIMER_MODE_DURATION;
     bool m_running = false;
+    ULONGLONG m_lastStartTick = 0;
+    int m_startRemainingSec = 900;
     int m_remainingSec = 900; // 15 mins default
     int m_initialSec = 900;
     bool m_finished = false;
@@ -139,7 +142,7 @@ public:
     PomodoroState GetState() const { return m_state; }
     int GetCurrentSession() const { return m_currentSession; }
     int GetTotalSessions() const { return m_totalWorkSessions; }
-    int GetRemainingSec() const { return m_remainingSec; }
+    int GetRemainingSec() const;
 
     std::wstring workMinStr = L"25";
     std::wstring breakMinStr = L"5";
@@ -153,6 +156,8 @@ private:
     int m_breakSec = 5 * 60;
     int m_totalWorkSessions = 8;
     int m_currentSession = 1;
+    ULONGLONG m_lastStartTick = 0;
+    int m_startRemainingSec = 25 * 60;
     int m_remainingSec = 25 * 60;
     bool m_running = false;
 };

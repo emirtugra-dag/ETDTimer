@@ -480,11 +480,26 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             POINT pt;
             GetCursorPos(&pt);
             SetWindowPos(m_hwnd, NULL, pt.x - m_dragStartOffset.x, pt.y - m_dragStartOffset.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+            for (auto& tool : m_tools) {
+                tool->Update(100);
+            }
+            InvalidateRect(m_hwnd, NULL, FALSE);
+            UpdateWindow(m_hwnd);
         }
 
         InvalidateRect(m_hwnd, NULL, FALSE);
         return 0;
     }
+
+    case WM_MOVING:
+    case WM_SIZING:
+    case WM_ENTERSIZEMOVE:
+        for (auto& tool : m_tools) {
+            tool->Update(100);
+        }
+        InvalidateRect(m_hwnd, NULL, FALSE);
+        UpdateWindow(m_hwnd);
+        break;
 
     case WM_SETCURSOR: {
         float scale = SettingsManager::Instance().Get().uiScale / 100.0f;

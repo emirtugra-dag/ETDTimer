@@ -12,34 +12,47 @@ ToolCard::ToolCard(ToolType type) : m_type(type) {
 }
 
 // ----------------------------------------------------
+// ----------------------------------------------------
 // Stopwatch Implementation
 // ----------------------------------------------------
 StopwatchTool::StopwatchTool() : ToolCard(TOOL_STOPWATCH) {
     m_height = 160;
 }
 
-void StopwatchTool::Update(DWORD deltaMs) {
+DWORD StopwatchTool::GetElapsedMs() const {
     if (m_running) {
-        m_elapsedMs += deltaMs;
+        return (DWORD)(m_accumulatedMs + (GetTickCount64() - m_lastStartTick));
     }
+    return (DWORD)m_accumulatedMs;
+}
+
+void StopwatchTool::Update(DWORD deltaMs) {
+    // Tick tracking is calculated in GetElapsedMs() via GetTickCount64()!
 }
 
 bool StopwatchTool::OnLButtonDown(int x, int y) {
     // Start/Pause button: x inside [15, 110], y inside [75, 105]
     if (x >= 15 && x <= 110 && y >= 75 && y <= 105) {
-        m_running = !m_running;
+        if (!m_running) {
+            m_lastStartTick = GetTickCount64();
+            m_running = true;
+        } else {
+            m_accumulatedMs += (GetTickCount64() - m_lastStartTick);
+            m_running = false;
+        }
         return true;
     }
     // Lap button: x inside [120, 215], y inside [75, 105]
     if (x >= 120 && x <= 215 && y >= 75 && y <= 105) {
-        if (m_elapsedMs > 0) {
+        DWORD curMs = GetElapsedMs();
+        if (curMs > 0) {
             LapRecord rec;
             rec.lapIndex = (int)m_laps.size() + 1;
-            rec.timeMs = m_elapsedMs;
+            rec.timeMs = curMs;
             
-            DWORD mins = (m_elapsedMs / 60000) % 60;
-            DWORD secs = (m_elapsedMs / 1000) % 60;
-            DWORD ms = (m_elapsedMs % 1000) / 10;
+            DWORD mins = (curMs / 60000) % 60;
+            DWORD secs = (curMs / 1000) % 60;
+            DWORD ms = (curMs % 1000) / 10;
             wchar_t buf[64];
             swprintf_s(buf, 64, L"#%d  %02d:%02d.%02d", rec.lapIndex, mins, secs, ms);
             rec.formattedTime = buf;
@@ -54,7 +67,8 @@ bool StopwatchTool::OnLButtonDown(int x, int y) {
     // Reset button: x inside [225, 320], y inside [75, 105]
     if (x >= 225 && x <= 320 && y >= 75 && y <= 105) {
         m_running = false;
-        m_elapsedMs = 0;
+        m_accumulatedMs = 0;
+        m_lastStartTick = 0;
         m_laps.clear();
         m_height = 160;
         return true;
@@ -74,22 +88,24 @@ TimerTool::TimerTool() : ToolCard(TOOL_TIMER) {
     m_initialSec = 900;
 }
 
+int TimerTool::GetRemainingSec() const {
+    if (m_running && !m_finished) {
+        DWORD elapsedSec = (DWORD)((GetTickCount64() - m_lastStartTick) / 1000);
+        int rem = m_startRemainingSec - (int)elapsedSec;
+        if (rem <= 0) return 0;
+        return rem;
+    }
+    return m_remainingSec;
+}
+
 void TimerTool::Update(DWORD deltaMs) {
     if (!m_running || m_finished) return;
 
-    static DWORD timerAcc = 0;
-    timerAcc += deltaMs;
-    if (timerAcc >= 1000) {
-        int secPassed = timerAcc / 1000;
-        timerAcc %= 1000;
-
-        m_remainingSec -= secPassed;
-        if (m_remainingSec <= 0) {
-            m_remainingSec = 0;
-            m_running = false;
-            m_finished = true;
-            AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
-        }
+    if (GetRemainingSec() <= 0) {
+        m_remainingSec = 0;
+        m_running = false;
+        m_finished = true;
+        AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
     }
 }
 
@@ -146,6 +162,8 @@ bool TimerTool::OnLButtonDown(int x, int y) {
                 m_initialSec = diff;
             }
             m_finished = false;
+            m_startRemainingSec = m_remainingSec;
+            m_lastStartTick = GetTickCount64();
             m_running = true;
             return true;
         }
@@ -162,6 +180,7 @@ bool TimerTool::OnLButtonDown(int x, int y) {
     } else {
         // Start/Pause (Pause) Button (running state): x [15, 215], y [92, 125]
         if (x >= 15 && x <= 215 && y >= 92 && y <= 125) {
+            m_remainingSec = GetRemainingSec();
             m_running = false;
             return true;
         }
@@ -190,6 +209,16 @@ PomodoroTool::PomodoroTool() : ToolCard(TOOL_POMODORO) {
     ComputePlan();
 }
 
+int PomodoroTool::GetRemainingSec() const {
+    if (m_running && m_state != POMO_IDLE && m_state != POMO_FINISHED) {
+        DWORD elapsedSec = (DWORD)((GetTickCount64() - m_lastStartTick) / 1000);
+        int rem = m_startRemainingSec - (int)elapsedSec;
+        if (rem <= 0) return 0;
+        return rem;
+    }
+    return m_remainingSec;
+}
+
 void PomodoroTool::ComputePlan() {
     int wMin = _wtoi(workMinStr.c_str());
     int bMin = _wtoi(breakMinStr.c_str());
@@ -214,30 +243,26 @@ void PomodoroTool::ComputePlan() {
 void PomodoroTool::Update(DWORD deltaMs) {
     if (!m_running || m_state == POMO_IDLE || m_state == POMO_FINISHED) return;
 
-    static DWORD pomAcc = 0;
-    pomAcc += deltaMs;
-    if (pomAcc >= 1000) {
-        int secPassed = pomAcc / 1000;
-        pomAcc %= 1000;
+    if (GetRemainingSec() <= 0) {
+        AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
 
-        m_remainingSec -= secPassed;
-        if (m_remainingSec <= 0) {
-            AudioManager::Instance().PlayAlertSound(SettingsManager::Instance().Get().customSoundPath);
-
-            if (m_state == POMO_WORK) {
-                if (m_currentSession < m_totalWorkSessions) {
-                    m_state = POMO_BREAK;
-                    m_remainingSec = m_breakSec;
-                } else {
-                    m_state = POMO_FINISHED;
-                    m_running = false;
-                    m_remainingSec = 0;
-                }
-            } else if (m_state == POMO_BREAK) {
-                m_currentSession++;
-                m_state = POMO_WORK;
-                m_remainingSec = m_workSec;
+        if (m_state == POMO_WORK) {
+            if (m_currentSession < m_totalWorkSessions) {
+                m_state = POMO_BREAK;
+                m_remainingSec = m_breakSec;
+                m_startRemainingSec = m_breakSec;
+                m_lastStartTick = GetTickCount64();
+            } else {
+                m_state = POMO_FINISHED;
+                m_running = false;
+                m_remainingSec = 0;
             }
+        } else if (m_state == POMO_BREAK) {
+            m_currentSession++;
+            m_state = POMO_WORK;
+            m_remainingSec = m_workSec;
+            m_startRemainingSec = m_workSec;
+            m_lastStartTick = GetTickCount64();
         }
     }
 }
@@ -257,6 +282,8 @@ bool PomodoroTool::OnLButtonDown(int x, int y) {
     if (x >= 15 && x <= 220 && y >= 155 && y <= 188) {
         ComputePlan();
         m_state = POMO_WORK;
+        m_startRemainingSec = m_workSec;
+        m_lastStartTick = GetTickCount64();
         m_running = true;
         return true;
     }
