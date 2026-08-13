@@ -575,7 +575,11 @@ void AppWindow::RecalculateLayout() {
     float scale = SettingsManager::Instance().Get().uiScale / 100.0f;
     if (scale <= 0.1f) scale = 1.0f;
 
-    if (m_toolsCollapsed || m_tools.empty()) {
+    if (SettingsManager::Instance().Get().clockOnlyMode) {
+        bool showSec = SettingsManager::Instance().Get().showSecondsInClock;
+        m_logicalWidth = showSec ? 180 : 135;
+        m_logicalHeight = 50;
+    } else if (m_toolsCollapsed || m_tools.empty()) {
         m_logicalWidth = 360;
         m_logicalHeight = 50;
     } else {
@@ -606,7 +610,7 @@ void AppWindow::RecalculateLayout() {
         if (m_logicalWidth < 360) m_logicalWidth = 360;
         if (m_logicalHeight < 370) m_logicalHeight = 370;
     }
-    if (m_menuOpen) {
+    if (m_menuOpen && !SettingsManager::Instance().Get().clockOnlyMode) {
         if (m_logicalWidth < 360) m_logicalWidth = 360;
         if (m_logicalHeight < 205) m_logicalHeight = 205;
     }
