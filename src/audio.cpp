@@ -1,7 +1,7 @@
 #include "audio.h"
 #include <windows.h>
 #include <mmsystem.h>
-#include <fstream>
+#include <thread>
 
 AudioManager& AudioManager::Instance() {
     static AudioManager instance;
@@ -20,8 +20,17 @@ void AudioManager::PlayAlertSound(const std::string& customPath) {
         }
     }
 
-    // Fallback: Default Windows Asterisk or Notification sound
-    PlaySoundW(L"SystemAsterisk", NULL, SND_ALIAS | SND_ASYNC);
+    // High-pitched crisp digital timer alarm beep ("Öt-bırak, öt-bırak!" pattern)
+    std::thread([]() {
+        for (int cycle = 0; cycle < 2; cycle++) {
+            Beep(2600, 110);
+            Sleep(70);
+            Beep(2600, 110);
+            Sleep(70);
+            Beep(2600, 140);
+            Sleep(250);
+        }
+    }).detach();
 }
 
 void AudioManager::StopSound() {
