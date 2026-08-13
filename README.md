@@ -123,14 +123,14 @@ This compiles `ETDTimer.exe`, packs it into `ETDTimerSetup.exe`, and digitally s
 
 ---
 
-### 📜 Legal Disclaimer & License
+### 📜 Legal Disclaimer, Brand IP & License
 
-ETDTimer is released under the **MIT License**.
+ETDTimer is released under a combined license separating the Software Source Code from the Brand, Logo, and Trademark assets. See **[LICENSE](LICENSE)** for details.
 
-> **Legal Notice**:  
-> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve telif / fikri mülkiyet hakları Emir Tuğra Dağ'a aittir.
-
-Copyright (c) 2026 **Emir Tuğra Dağ**. Intellectual property rights reserved.
+- **Developer:** Emir Tuğra Dağ (Independent Developer)
+- **Source Code License:** [MIT License](LICENSE) — The underlying source code is open-source.
+- **Brand & Logo Restrictions:** The product name **"ETDTimer"**, official icons, logos, and visual branding assets are the personal intellectual property of **Emir Tuğra Dağ** (**All Rights Reserved**). Unauthorized use, re-branding, or distribution of brand assets in derivative works without written consent is strictly prohibited.
+- **Absolute Disclaimer of Liability (AS IS):** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. THE DEVELOPER (EMİR TUĞRA DAĞ) ASSUMES ZERO LIABILITY FOR ANY DAMAGES, DATA LOSS, OR SYSTEM INSTABILITY ARISING FROM THE USE OF THIS SOFTWARE. ALL RISKS BELONG ENTIRELY TO THE USER.
 
 ---
 
@@ -202,11 +202,11 @@ powershell -ExecutionPolicy Bypass -File "build_and_sign.ps1"
 
 ---
 
-### 📜 Yasal Bildirim ve Lisans
+### 📜 Yasal Bildirim, Marka Koruma ve Lisans
 
-ETDTimer **MIT Lisansı** ile lisanslanmıştır.
+ETDTimer yazılımının kaynak kodları ve görsel varlıkları ayrı lisans ilkelerine tabidir. Detaylar için **[LICENSE](LICENSE)** dosyasına bakabilirsiniz.
 
-> **Yasal Bildirim & Sorumluluk Reddi**:  
-> Bu yazılım "olduğu gibi" (As-Is) sunulmaktadır. Geliştirici Emir Tuğra Dağ, uygulamanın kullanımından doğabilecek doğrudan ya da dolaylı hiçbir durum, zarar veya aksaklıktan sorumlu tutulamaz. Geliştiricinin yazılıma güncelleme getirme veya bakım yapma zorunluluğu bulunmamaktadır. Kod tabanı MIT Lisansına tabi olup; projenin adı, logosu ve telif / fikri mülkiyet hakları Emir Tuğra Dağ'a aittir.
-
-Telif Hakkı © 2026 **Emir Tuğra Dağ**. Fikri mülkiyet hakları saklıdır.
+- **Geliştirici:** Emir Tuğra Dağ (Bağımsız Geliştirici)
+- **Kaynak Kod Lisansı:** [MIT Lisansı](LICENSE) — Kod tabanı açık kaynaklıdır.
+- **Marka ve Logo Kısıtlamaları:** **"ETDTimer"** ismi, logosu, uygulama simgeleri (`res/app.ico`) ve görsel ögeler bağımsız geliştirici **Emir Tuğra Dağ**'ın telif hakkı altındaki fikri mülkiyetidir (**Tüm Hakları Saklıdır**). Yazılı izin alınmadan marka ve logolar başka projelerde kullanılamaz.
+- **Eksiksiz Sorumluluk Reddi (AS IS):** BU YAZILIM "OLDUĞU GİBİ" SUNULMAKTADIR. UYGULAMANIN KULLANIMINDAN DOĞABİLECEK DOĞRUDAN VEYA DOLAYLI HİÇBİR ZARAR, VERİ KAYBI VEYA AKSALIKTAN GELİŞTİRİCİ (EMİR TUĞRA DAĞ) HİÇBİR KOŞULDA SORUMLU TUTULAMAZ. TÜM KULLANIM VE RİSK KULLANICIYA AİTTİR.
