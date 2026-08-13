@@ -2,17 +2,26 @@
 
 <img src="docs/images/logo.png" alt="ETDTimer Logo" width="160" style="border-radius: 24px;" />
 
-# ETDTimer
+# ETDTimer v1.0.0
 
 **Modern, Ultra-Lightweight & Modular Desktop Timer Suite for Windows**  
 *Windows için Modern, Ultra Hafif ve Modüler Masaüstü Zamanlayıcı Paketi*
 
+[![Release: v1.0.0](https://img.shields.io/badge/Release-v1.0.0-brightgreen.svg?logo=github)](https://github.com/emirtugra-dag/ETDTimer/releases/tag/v1.0.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D6.svg?logo=windows)](https://microsoft.com/windows)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg?logo=c%2B%2B)](https://isocpp.org/)
 [![Win32 & GDI+](https://img.shields.io/badge/API-Win32%20%7C%20GDI%2B-0078D6)](https://learn.microsoft.com/en-us/windows/win32/)
 [![Languages: EN & TR](https://img.shields.io/badge/Languages-English%20%7C%20T%C3%BCrk%C3%A7e-brightgreen)](#language-dil)
-[![Build: Passing](https://img.shields.io/badge/Build-Passing-brightgreen)](#building-from-source--kaynak-koddan-derleme)
+[![Digitally Signed](https://img.shields.io/badge/Executables-Digitally%20Signed-blueviolet)](https://github.com/emirtugra-dag/ETDTimer/tree/main/releases)
+
+---
+
+### 📦 Quick Downloads / Hızlı İndirme (v1.0.0 Signed)
+
+[ 📥 **Download Setup Installer (`ETDTimerSetup.exe`)** ](releases/ETDTimerSetup.exe)  
+[ 📦 **Download Portable Package (`ETDTimer-v1.0.0-Portable.zip`)** ](releases/ETDTimer-v1.0.0-Portable.zip)  
+[ ⚡ **Download Standalone Portable (`ETDTimer.exe`)** ](releases/ETDTimer.exe)
 
 ---
 
@@ -60,6 +69,9 @@ Whether you need a sleek desktop clock, an accurate stopwatch, a countdown timer
   - Custom audio file support (`.mp3`, `.wav`) or built-in crisp **2600 Hz high-pitched digital timer alarm** pattern (`Öt-bırak, öt-bırak!`).
   - Runs in a background thread to prevent UI freezing.
 
+- 🚀 **Start with Windows (AutoStart)**:
+  - Both **Portable** and **Installer** versions support automatic Windows startup integration with dynamic executable path registration (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
+
 - 🛡️ **System Tray & Single Executable Deployment**:
   - System Tray Icon integration with quick context menu (`Show / Hide`, `Exit`).
   - Ships as a single self-contained installer (`ETDTimerSetup.exe`) signed with self-signed certificate.
@@ -86,10 +98,18 @@ Whether you need a sleek desktop clock, an accurate stopwatch, a countdown timer
 
 ---
 
-### 🚀 Download & Installation
+### 🚀 Download & Installation Options
 
-1. Download the latest `ETDTimerSetup.exe` from the [Releases](https://github.com/emirtugra-dag/ETDTimer/releases) page.
-2. Run `ETDTimerSetup.exe` to install ETDTimer with desktop shortcuts, Start Menu entry, and an official Windows Control Panel uninstaller (`Uninstall.exe`).
+- **Option 1: Setup Installer (`ETDTimerSetup.exe`)**
+  - Download [ETDTimerSetup.exe](releases/ETDTimerSetup.exe).
+  - Installs ETDTimer with desktop shortcuts, Start Menu entry, and Windows Control Panel uninstaller.
+
+- **Option 2: Portable ZIP Package (`ETDTimer-v1.0.0-Portable.zip`)**
+  - Download [ETDTimer-v1.0.0-Portable.zip](releases/ETDTimer-v1.0.0-Portable.zip).
+  - Extract anywhere and run `ETDTimer.exe`. No installation or administrative privileges required.
+
+- **Option 3: Standalone Executable (`ETDTimer.exe`)**
+  - Download [ETDTimer.exe](releases/ETDTimer.exe) directly and run anywhere.
 
 ---
 
@@ -159,9 +179,25 @@ Copyright (c) 2026 **Emir Tuğra Dağ**. All rights reserved.
   - Özel ses dosyası yükleme (`.mp3`, `.wav`) veya yerleşik **2600 Hz tiz dijital kronometre bipleme** ritmi (`Öt-bırak, öt-bırak!`).
   - Arka plan thread'inde çalışarak arayüzün takılmasını engeller.
 
+- 🚀 **Sistem Başlangıcında Çalışma (AutoStart)**:
+  - Hem **Portable (Taşınabilir)** hem de **Kurulumlu (Installer)** sürümlerde uygulama içinden "Sistem Başlangıcında Çalıştır" seçildiğinde executable dosyasının bulunduğu tam dizini kayıt defterine (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`) dinamik olarak kaydeder ve sorunsuz çalışır.
+
 - 🛡️ **Sistem Tepsisi & Tek Tıkla Kurulum**:
   - Sistem tepsisi (System Tray Icon) sağ tık menüsü (`Göster / Gizle`, `Çıkış`).
   - Dijital olarak imzalanmış tek tıkla kurulan kurulum dosyası (`ETDTimerSetup.exe`).
+
+---
+
+### 📦 İndirme Seçenekleri (v1.0.0 İmzalı)
+
+- **Seçenek 1: Kurulumlu Kurucu (`ETDTimerSetup.exe`)**
+  - [ETDTimerSetup.exe İndir](releases/ETDTimerSetup.exe). Masaüstü kısayolu, Başlat menüsü öğesi ve Denetim Masası kaldırıcı içerir.
+
+- **Seçenek 2: Taşınabilir ZIP Paketi (`ETDTimer-v1.0.0-Portable.zip`)**
+  - [ETDTimer-v1.0.0-Portable.zip İndir](releases/ETDTimer-v1.0.0-Portable.zip). İstediğiniz yere çıkartıp doğrudan `ETDTimer.exe` çalıştırın. Kurulum gerektirmez.
+
+- **Seçenek 3: Tek Başna Taşınabilir Executable (`ETDTimer.exe`)**
+  - Doğrudan [ETDTimer.exe İndir](releases/ETDTimer.exe) ve çalıştır.
 
 ---
 
