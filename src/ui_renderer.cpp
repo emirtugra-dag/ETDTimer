@@ -118,6 +118,16 @@ void UIRenderer::RenderHeader(Graphics& g, int width, int height, bool toolsColl
     // Render Top Control Buttons
     Font btnFont(L"Segoe UI Symbol", 13, FontStyleRegular, UnitPoint);
     
+    if (SettingsManager::Instance().Get().clockOnlyMode) {
+        // Clock Only Mode: Hide ☰ Burger Menu and 👁 Eye button! Show ONLY ⚙ Gear Button
+        RectF gearBtn((REAL)width - 40, 10, 28, 28);
+        bool hoverGear = (m_mouseX >= width - 40 && m_mouseX <= width - 12 && m_mouseY >= 10 && m_mouseY <= 38);
+        g.FillRectangle(hoverGear ? m_buttonHoverBrush : m_buttonBrush, gearBtn);
+        g.DrawRectangle(hoverGear ? m_accentPen : m_borderPen, gearBtn);
+        g.DrawString(L"⚙", -1, &btnFont, PointF((REAL)width - 36, 12), m_textBrush);
+        return;
+    }
+
     // ☰ Burger Menu Button [x: width - 110]
     RectF burgerBtn((REAL)width - 110, 10, 28, 28);
     bool hoverBurger = (m_mouseX >= width - 110 && m_mouseX <= width - 82 && m_mouseY >= 10 && m_mouseY <= 38);
@@ -461,7 +471,7 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     g.FillRectangle(&overlayBrush, 0, 0, width, height);
 
     int modalW = 320;
-    int modalH = 390;
+    int modalH = 420;
     int modalX = (width - modalW) / 2;
     int modalY = (height - modalH) / 2;
 
@@ -497,32 +507,37 @@ void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {
     g.DrawString(s.uiScale == 120 ? SettingsManager::Instance().Text("SCALE_120") : (s.uiScale == 85 ? SettingsManager::Instance().Text("SCALE_85") : SettingsManager::Instance().Text("SCALE_100")), -1, &bodyFont, PointF((REAL)modalX + 210, (REAL)curY), m_accentBrush);
     curY += 28;
 
-    // 4. Show Seconds in Clock
+    // 4. Clock Only Mode Toggle (Kompakt Saat Modu)
+    g.DrawString(SettingsManager::Instance().Text("CLOCK_ONLY_MODE"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
+    g.DrawString(s.clockOnlyMode ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
+    curY += 28;
+
+    // 5. Show Seconds in Clock
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_CLOCK"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.showSecondsInClock ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
     curY += 28;
 
-    // 5. Show Seconds in Timer
+    // 6. Show Seconds in Timer
     g.DrawString(SettingsManager::Instance().Text("SHOW_SECONDS_TIMER"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.showSecondsInTimer ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
     curY += 28;
 
-    // 6. Force Always on Top
+    // 7. Force Always on Top
     g.DrawString(SettingsManager::Instance().Text("FORCE_TOPMOST"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.forceAlwaysOnTop ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
     curY += 28;
 
-    // 7. Autostart
+    // 8. Autostart
     g.DrawString(SettingsManager::Instance().Text("AUTOSTART"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.autoStart ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
     curY += 28;
 
-    // 8. Restore Previous Tools
+    // 9. Restore Previous Tools
     g.DrawString(SettingsManager::Instance().Text("RESTORE_TOOLS"), -1, &bodyFont, PointF((REAL)modalX + 15, (REAL)curY), m_textBrush);
     g.DrawString(s.restorePreviousTools ? L"[✓]" : L"[  ]", -1, &bodyFont, PointF((REAL)modalX + 275, (REAL)curY), m_accentBrush);
     curY += 28;
 
-    // 9. Legal Disclaimer Info Button
+    // 10. Legal Disclaimer Info Button
     RectF legalBtn((REAL)modalX + 15, (REAL)curY + 5, 290, 28);
     g.FillRectangle(m_buttonBrush, legalBtn); g.DrawRectangle(m_borderPen, legalBtn);
     g.DrawString(SettingsManager::Instance().Text("LEGAL_NOTICE"), -1, &bodyFont, PointF((REAL)modalX + 100, (REAL)curY + 10), m_textBrush);

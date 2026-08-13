@@ -23,6 +23,7 @@ struct AppSettings {
     bool forceAlwaysOnTop = false;
     bool autoStart = false;
     bool restorePreviousTools = true;
+    bool clockOnlyMode = false;
     int uiScale = 100; // 80, 100, 120
     std::string customSoundPath = "";
     std::string lastOpenTools = ""; // comma-separated list of tool types

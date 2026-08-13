@@ -182,40 +182,42 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         // Render Clock Header
         m_renderer.RenderHeader(g, m_logicalWidth, 50, m_toolsCollapsed);
 
-        // Render active tool cards if expanded
-        if (!m_toolsCollapsed) {
-            if (m_tools.empty() && m_menuOpen) {
-                // Render guidance card on left side when empty and menu is open
-                m_renderer.RenderEmptyStateCard(g, 0, 55, 145, 145);
-            } else {
-                int curY = 55;
-                int cardW = 360;
-                int colX = 0;
-                int maxColH = 55;
+        if (!SettingsManager::Instance().Get().clockOnlyMode) {
+            // Render active tool cards if expanded
+            if (!m_toolsCollapsed) {
+                if (m_tools.empty() && m_menuOpen) {
+                    // Render guidance card on left side when empty and menu is open
+                    m_renderer.RenderEmptyStateCard(g, 0, 55, 145, 145);
+                } else {
+                    int curY = 55;
+                    int cardW = 360;
+                    int colX = 0;
+                    int maxColH = 55;
 
-                RECT workArea;
-                SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
-                int maxScreenH = (int)((workArea.bottom - workArea.top - 100) / scale);
+                    RECT workArea;
+                    SystemParametersInfoW(SPI_GETWORKAREA, 0, &workArea, 0);
+                    int maxScreenH = (int)((workArea.bottom - workArea.top - 100) / scale);
 
-                for (size_t i = 0; i < m_tools.size(); i++) {
-                    int cardH = m_tools[i]->GetHeight();
-                    
-                    // Column overflow wrapping logic (Grid mode)
-                    if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
-                        colX += 370;
-                        curY = 55;
+                    for (size_t i = 0; i < m_tools.size(); i++) {
+                        int cardH = m_tools[i]->GetHeight();
+                        
+                        // Column overflow wrapping logic (Grid mode)
+                        if (curY + cardH > maxScreenH || (i > 3 && colX == 0)) {
+                            colX += 370;
+                            curY = 55;
+                        }
+
+                        m_renderer.RenderToolCard(g, m_tools[i].get(), colX, curY, cardW, cardH);
+                        curY += cardH + 10;
+                        if (curY > maxColH) maxColH = curY;
                     }
-
-                    m_renderer.RenderToolCard(g, m_tools[i].get(), colX, curY, cardW, cardH);
-                    curY += cardH + 10;
-                    if (curY > maxColH) maxColH = curY;
                 }
             }
-        }
 
-        // Render Burger Menu popup
-        if (m_menuOpen) {
-            m_renderer.RenderToolMenu(g, m_logicalWidth - 185, 50, 175, 145);
+            // Render Burger Menu popup
+            if (m_menuOpen) {
+                m_renderer.RenderToolMenu(g, m_logicalWidth - 185, 50, 175, 145);
+            }
         }
 
         // Render Settings Modal overlay
@@ -255,7 +257,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         int y = (int)(physY / scale);
 
         // If Tool Menu is open and user clicks outside it, close menu immediately
-        if (m_menuOpen) {
+        if (m_menuOpen && !SettingsManager::Instance().Get().clockOnlyMode) {
             if (x < m_logicalWidth - 185 || x > m_logicalWidth - 10 || y < 45 || y > 195) {
                 m_menuOpen = false;
                 RecalculateLayout();
@@ -265,7 +267,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Settings Modal Interaction
         if (m_settingsOpen) {
-            int modalW = 320, modalH = 390;
+            int modalW = 320, modalH = 420;
             int modalX = (m_logicalWidth - modalW) / 2;
             int modalY = (m_logicalHeight - modalH) / 2;
 
@@ -304,10 +306,18 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             }
             curY += 28;
 
+            // Clock Only Mode switch
+            if (y >= curY && y <= curY + 28) {
+                s.clockOnlyMode = !s.clockOnlyMode;
+                RecalculateLayout();
+                return 0;
+            }
+            curY += 28;
+
             // Show Seconds Clock
             if (y >= curY && y <= curY + 28) {
                 s.showSecondsInClock = !s.showSecondsInClock;
-                InvalidateRect(m_hwnd, NULL, FALSE);
+                RecalculateLayout();
                 return 0;
             }
             curY += 28;
@@ -360,17 +370,20 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Header controls (y <= 50)
         if (y <= 50) {
-            // Burger menu click [x: m_logicalWidth - 110 .. m_logicalWidth - 80]
-            if (x >= m_logicalWidth - 110 && x <= m_logicalWidth - 80) {
-                m_menuOpen = !m_menuOpen;
-                RecalculateLayout();
-                return 0;
+            if (!SettingsManager::Instance().Get().clockOnlyMode) {
+                // Burger menu click [x: m_logicalWidth - 110 .. m_logicalWidth - 80]
+                if (x >= m_logicalWidth - 110 && x <= m_logicalWidth - 80) {
+                    m_menuOpen = !m_menuOpen;
+                    RecalculateLayout();
+                    return 0;
+                }
+                // Eye button click [x: m_logicalWidth - 75 .. m_logicalWidth - 45]
+                if (x >= m_logicalWidth - 75 && x <= m_logicalWidth - 45) {
+                    ToggleToolsCollapse();
+                    return 0;
+                }
             }
-            // Eye button click [x: m_logicalWidth - 75 .. m_logicalWidth - 45]
-            if (x >= m_logicalWidth - 75 && x <= m_logicalWidth - 45) {
-                ToggleToolsCollapse();
-                return 0;
-            }
+
             // Gear button click [x: m_logicalWidth - 40 .. m_logicalWidth - 10]
             if (x >= m_logicalWidth - 40 && x <= m_logicalWidth - 10) {
                 m_settingsOpen = !m_settingsOpen;
