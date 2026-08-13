@@ -20,7 +20,6 @@
 ### 📦 Quick Downloads / Hızlı İndirme (v1.0.0 Signed)
 
 [ 📥 **Download Setup Installer (`ETDTimerSetup.exe`)** ](releases/ETDTimerSetup.exe)  
-[ 📦 **Download Portable Package (`ETDTimer-v1.0.0-Portable.zip`)** ](releases/ETDTimer-v1.0.0-Portable.zip)  
 [ ⚡ **Download Standalone Portable (`ETDTimer.exe`)** ](releases/ETDTimer.exe)
 
 ---
@@ -98,18 +97,15 @@ Whether you need a sleek desktop clock, an accurate stopwatch, a countdown timer
 
 ---
 
-### 🚀 Download & Installation Options
+### 🚀 Download Options
 
-- **Option 1: Setup Installer (`ETDTimerSetup.exe`)**
+- **Setup Installer (`ETDTimerSetup.exe`)**
   - Download [ETDTimerSetup.exe](releases/ETDTimerSetup.exe).
   - Installs ETDTimer with desktop shortcuts, Start Menu entry, and Windows Control Panel uninstaller.
 
-- **Option 2: Portable ZIP Package (`ETDTimer-v1.0.0-Portable.zip`)**
-  - Download [ETDTimer-v1.0.0-Portable.zip](releases/ETDTimer-v1.0.0-Portable.zip).
-  - Extract anywhere and run `ETDTimer.exe`. No installation or administrative privileges required.
-
-- **Option 3: Standalone Executable (`ETDTimer.exe`)**
-  - Download [ETDTimer.exe](releases/ETDTimer.exe) directly and run anywhere.
+- **Standalone Portable Executable (`ETDTimer.exe`)**
+  - Download [ETDTimer.exe](releases/ETDTimer.exe).
+  - Single executable, zero installation required. Run directly from anywhere.
 
 ---
 
@@ -190,14 +186,11 @@ Copyright (c) 2026 **Emir Tuğra Dağ**. All rights reserved.
 
 ### 📦 İndirme Seçenekleri (v1.0.0 İmzalı)
 
-- **Seçenek 1: Kurulumlu Kurucu (`ETDTimerSetup.exe`)**
+- **Kurulumlu Kurucu (`ETDTimerSetup.exe`)**
   - [ETDTimerSetup.exe İndir](releases/ETDTimerSetup.exe). Masaüstü kısayolu, Başlat menüsü öğesi ve Denetim Masası kaldırıcı içerir.
 
-- **Seçenek 2: Taşınabilir ZIP Paketi (`ETDTimer-v1.0.0-Portable.zip`)**
-  - [ETDTimer-v1.0.0-Portable.zip İndir](releases/ETDTimer-v1.0.0-Portable.zip). İstediğiniz yere çıkartıp doğrudan `ETDTimer.exe` çalıştırın. Kurulum gerektirmez.
-
-- **Seçenek 3: Tek Başna Taşınabilir Executable (`ETDTimer.exe`)**
-  - Doğrudan [ETDTimer.exe İndir](releases/ETDTimer.exe) ve çalıştır.
+- **Tek Başına Taşınabilir Portable Executable (`ETDTimer.exe`)**
+  - Doğrudan [ETDTimer.exe İndir](releases/ETDTimer.exe) ve istediğin yerden çalıştır. Kurulum gerektirmez.
 
 ---
 
