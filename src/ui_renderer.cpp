@@ -213,17 +213,27 @@ void UIRenderer::RenderToolCard(Graphics& g, ToolCard* card, int x, int y, int w
             g.DrawString(L"+5dk", -1, &smallFont, PointF((REAL)x + 112, (REAL)y + 99), m_textBrush);
             g.DrawString(L"+15dk", -1, &smallFont, PointF((REAL)x + 188, (REAL)y + 99), m_textBrush);
             g.DrawString(L"+1sa", -1, &smallFont, PointF((REAL)x + 272, (REAL)y + 99), m_textBrush);
+
+            // Start/Pause & Reset Buttons (Stopped state)
+            RectF startBtn((REAL)x + 15, (REAL)y + 135, 190, 32);
+            RectF resetBtn((REAL)x + 215, (REAL)y + 135, 110, 32);
+            g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
+            g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
+
+            const wchar_t* stTxt = SettingsManager::Instance().Text("START");
+            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 142), m_textBrush);
+            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 142), m_textBrush);
+        } else {
+            // Start/Pause & Reset Buttons (Running state - compact height)
+            RectF startBtn((REAL)x + 15, (REAL)y + 92, 190, 32);
+            RectF resetBtn((REAL)x + 215, (REAL)y + 92, 110, 32);
+            g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
+            g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
+
+            const wchar_t* stTxt = SettingsManager::Instance().Text("PAUSE");
+            g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 99), m_textBrush);
+            g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 99), m_textBrush);
         }
-
-        // Start/Pause & Reset Buttons
-        RectF startBtn((REAL)x + 15, (REAL)y + 135, 190, 32);
-        RectF resetBtn((REAL)x + 215, (REAL)y + 135, 110, 32);
-        g.FillRectangle(m_buttonBrush, startBtn); g.DrawRectangle(m_borderPen, startBtn);
-        g.FillRectangle(m_buttonBrush, resetBtn); g.DrawRectangle(m_borderPen, resetBtn);
-
-        const wchar_t* stTxt = tm->IsRunning() ? SettingsManager::Instance().Text("PAUSE") : SettingsManager::Instance().Text("START");
-        g.DrawString(stTxt, -1, &smallFont, PointF((REAL)x + 85, (REAL)y + 142), m_textBrush);
-        g.DrawString(SettingsManager::Instance().Text("RESET"), -1, &smallFont, PointF((REAL)x + 245, (REAL)y + 142), m_textBrush);
 
     } else if (card->GetType() == TOOL_POMODORO) {
         PomodoroTool* pm = (PomodoroTool*)card;

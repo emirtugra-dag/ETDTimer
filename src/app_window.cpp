@@ -406,6 +406,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
                     // Card inner interaction
                     m_tools[i]->OnLButtonDown(x - colX, y - curY);
+                    RecalculateLayout();
                     InvalidateRect(m_hwnd, NULL, FALSE);
                     return 0;
                 }

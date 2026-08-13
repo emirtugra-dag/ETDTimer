@@ -60,6 +60,13 @@ public:
     void Update(DWORD deltaMs) override;
     bool OnLButtonDown(int x, int y) override;
 
+    int GetHeight() const override {
+        if (m_laps.empty()) return 120;
+        int count = (int)m_laps.size();
+        if (count > 4) count = 4;
+        return 120 + count * 24 + 10;
+    }
+
     bool IsRunning() const { return m_running; }
     DWORD GetElapsedMs() const { return m_elapsedMs; }
     const std::vector<LapRecord>& GetLaps() const { return m_laps; }
@@ -87,6 +94,10 @@ public:
     void Update(DWORD deltaMs) override;
     bool OnLButtonDown(int x, int y) override;
     void OnCharInput(wchar_t ch) override;
+
+    int GetHeight() const override {
+        return m_running ? 135 : 180;
+    }
 
     TimerMode GetMode() const { return m_mode; }
     bool IsRunning() const { return m_running; }

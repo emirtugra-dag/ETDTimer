@@ -114,11 +114,9 @@ bool TimerTool::OnLButtonDown(int x, int y) {
             if (x >= 175 && x <= 245) { inputMins += 15; if (inputMins >= 60) { inputHours += inputMins / 60; inputMins %= 60; } return true; } // +15dk
             if (x >= 255 && x <= 325) { inputHours += 1; return true; } // +1sa
         }
-    }
 
-    // Start/Pause Button: x [15, 205], y [135, 168]
-    if (x >= 15 && x <= 205 && y >= 135 && y <= 168) {
-        if (!m_running) {
+        // Start/Pause Button (stopped state): x [15, 205], y [135, 168]
+        if (x >= 15 && x <= 205 && y >= 135 && y <= 168) {
             if (m_mode == TIMER_MODE_DURATION) {
                 m_remainingSec = inputHours * 3600 + inputMins * 60;
                 if (m_remainingSec <= 0) m_remainingSec = 60;
@@ -135,20 +133,34 @@ bool TimerTool::OnLButtonDown(int x, int y) {
             }
             m_finished = false;
             m_running = true;
-        } else {
-            m_running = false;
+            return true;
         }
-        return true;
-    }
 
-    // Reset Button: x [215, 325], y [135, 168]
-    if (x >= 215 && x <= 325 && y >= 135 && y <= 168) {
-        m_running = false;
-        m_finished = false;
-        if (m_mode == TIMER_MODE_DURATION) {
-            m_remainingSec = inputHours * 3600 + inputMins * 60;
+        // Reset Button (stopped state): x [215, 325], y [135, 168]
+        if (x >= 215 && x <= 325 && y >= 135 && y <= 168) {
+            m_running = false;
+            m_finished = false;
+            if (m_mode == TIMER_MODE_DURATION) {
+                m_remainingSec = inputHours * 3600 + inputMins * 60;
+            }
+            return true;
         }
-        return true;
+    } else {
+        // Start/Pause (Pause) Button (running state): x [15, 205], y [92, 125]
+        if (x >= 15 && x <= 205 && y >= 92 && y <= 125) {
+            m_running = false;
+            return true;
+        }
+
+        // Reset Button (running state): x [215, 325], y [92, 125]
+        if (x >= 215 && x <= 325 && y >= 92 && y <= 125) {
+            m_running = false;
+            m_finished = false;
+            if (m_mode == TIMER_MODE_DURATION) {
+                m_remainingSec = inputHours * 3600 + inputMins * 60;
+            }
+            return true;
+        }
     }
 
     return false;
