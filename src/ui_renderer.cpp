@@ -289,15 +289,23 @@ void UIRenderer::RenderToolMenu(Graphics& g, int x, int y, int width, int height
     g.DrawRectangle(m_borderPen, menuRect);
 
     Font itemFont(L"Segoe UI", 10, FontStyleRegular, UnitPoint);
+    Font exitFont(L"Segoe UI", 9, FontStyleBold, UnitPoint);
 
     // Item 1: Stopwatch
     g.DrawString(SettingsManager::Instance().Text("STOPWATCH"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 10), m_textBrush);
 
     // Item 2: Timer
-    g.DrawString(SettingsManager::Instance().Text("TIMER"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 42), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("TIMER"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 40), m_textBrush);
 
     // Item 3: Pomodoro
-    g.DrawString(SettingsManager::Instance().Text("POMODORO"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 74), m_textBrush);
+    g.DrawString(SettingsManager::Instance().Text("POMODORO"), -1, &itemFont, PointF((REAL)x + 15, (REAL)y + 70), m_textBrush);
+
+    // Separator Line
+    g.DrawLine(m_borderPen, x + 10, y + 102, x + width - 10, y + 102);
+
+    // Item 4: Close Application (Exit App)
+    SolidBrush exitBrush(Color(255, 235, 87, 87)); // Modern soft red
+    g.DrawString(SettingsManager::Instance().Text("EXIT_APP"), -1, &exitFont, PointF((REAL)x + 15, (REAL)y + 112), &exitBrush);
 }
 
 void UIRenderer::RenderSettingsModal(Graphics& g, int width, int height) {

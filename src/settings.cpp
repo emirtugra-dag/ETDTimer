@@ -57,6 +57,7 @@ static std::map<std::string, std::pair<std::wstring, std::wstring>> g_Dictionary
     {"MAX_TOOL_LIMIT", {L"En fazla 3 adet aynı araçtan ve toplam 10 araç açılabilir!", L"Max 3 instances per tool & max 10 total tools allowed!"}},
     {"SHOW_HIDE", {L"Göster / Gizle", L"Show / Hide"}},
     {"EXIT", {L"Çıkış", L"Exit"}},
+    {"EXIT_APP", {L"❌ Uygulamayı Kapat", L"❌ Exit App"}},
     {"SCALE_85", {L"%85 (Küçük)", L"85% (Small)"}},
     {"SCALE_100", {L"%100 (Normal)", L"100% (Normal)"}},
     {"SCALE_120", {L"%120 (Büyük)", L"120% (Large)"}},

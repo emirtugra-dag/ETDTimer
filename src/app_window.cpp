@@ -196,7 +196,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Render Burger Menu popup
         if (m_menuOpen) {
-            m_renderer.RenderToolMenu(g, m_windowWidth - 170, 50, 160, 110);
+            m_renderer.RenderToolMenu(g, m_windowWidth - 185, 50, 175, 145);
         }
 
         // Render Settings Modal overlay
@@ -232,7 +232,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // If Tool Menu is open and user clicks outside it, close menu immediately
         if (m_menuOpen) {
-            if (x < m_windowWidth - 170 || x > m_windowWidth - 10 || y < 45 || y > 145) {
+            if (x < m_windowWidth - 185 || x > m_windowWidth - 10 || y < 45 || y > 195) {
                 m_menuOpen = false;
                 RecalculateLayout();
                 // Continue to process click
@@ -368,10 +368,14 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Menu selection interaction
         if (m_menuOpen) {
-            if (x >= m_windowWidth - 170 && x <= m_windowWidth - 10) {
-                if (y >= 45 && y <= 80) AddTool(TOOL_STOPWATCH);
-                else if (y >= 80 && y <= 112) AddTool(TOOL_TIMER);
-                else if (y >= 112 && y <= 145) AddTool(TOOL_POMODORO);
+            if (x >= m_windowWidth - 185 && x <= m_windowWidth - 10) {
+                if (y >= 45 && y <= 78) AddTool(TOOL_STOPWATCH);
+                else if (y >= 78 && y <= 108) AddTool(TOOL_TIMER);
+                else if (y >= 108 && y <= 138) AddTool(TOOL_POMODORO);
+                else if (y >= 138 && y <= 195) {
+                    PostQuitMessage(0);
+                    return 0;
+                }
             }
             m_menuOpen = false;
             RecalculateLayout();
@@ -518,7 +522,7 @@ void AppWindow::RecalculateLayout() {
     }
     if (m_menuOpen) {
         if (m_windowWidth < 340) m_windowWidth = 340;
-        if (m_windowHeight < 165) m_windowHeight = 165;
+        if (m_windowHeight < 205) m_windowHeight = 205;
     }
 
     SetWindowPos(m_hwnd, NULL, 0, 0, m_windowWidth, m_windowHeight, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
