@@ -65,7 +65,7 @@ Whether you need a sleek desktop clock, an accurate stopwatch, a countdown timer
   - Dark Mode & Light Mode support.
 
 - 🔊 **Audio Alerts & High-Pitched Digital Beep**:
-  - Custom audio file support (`.mp3`, `.wav`) or built-in crisp **2600 Hz high-pitched digital timer alarm** pattern (`Öt-bırak, öt-bırak!`).
+  - Built-in crisp **2600 Hz high-pitched digital timer alarm** pattern (`Öt-bırak, öt-bırak!`).
   - Runs in a background thread to prevent UI freezing.
 
 - 🚀 **Start with Windows (AutoStart)**:
@@ -172,8 +172,8 @@ Copyright (c) 2026 **Emir Tuğra Dağ**. Intellectual property rights reserved.
   - Koyu (Dark) ve Açık (Light) tema desteği.
 
 - 🔊 **Sesli Uyarılar & Tiz Dijital Bipleme**:
-  - Özel ses dosyası yükleme (`.mp3`, `.wav`) veya yerleşik **2600 Hz tiz dijital kronometre bipleme** ritmi (`Öt-bırak, öt-bırak!`).
-  - Arka plan thread'inde çalışarak arayüzün takılmasını engeller.
+  - Arka plan thread'inde çalışan yerleşik **2600 Hz tiz dijital kronometre bipleme** ritmi (`Öt-bırak, öt-bırak!`).
+  - Arayüzün takılmasını engeller.
 
 - 🚀 **Sistem Başlangıcında Çalışma (AutoStart)**:
   - Hem **Portable (Taşınabilir)** hem de **Kurulumlu (Installer)** sürümlerde uygulama içinden "Sistem Başlangıcında Çalıştır" seçildiğinde executable dosyasının bulunduğu tam dizini kayıt defterine (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`) dinamik olarak kaydeder ve sorunsuz çalışır.
