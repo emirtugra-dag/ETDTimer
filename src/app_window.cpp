@@ -370,7 +370,19 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         // Header controls (y <= 50)
         if (y <= 50) {
-            if (!SettingsManager::Instance().Get().clockOnlyMode) {
+            if (SettingsManager::Instance().Get().clockOnlyMode) {
+                // Gear button click [x: m_logicalWidth - 70 .. m_logicalWidth - 42]
+                if (x >= m_logicalWidth - 70 && x <= m_logicalWidth - 42) {
+                    m_settingsOpen = !m_settingsOpen;
+                    RecalculateLayout();
+                    return 0;
+                }
+                // Close button (✕) click [x: m_logicalWidth - 36 .. m_logicalWidth - 8]
+                if (x >= m_logicalWidth - 36 && x <= m_logicalWidth - 8) {
+                    PostQuitMessage(0);
+                    return 0;
+                }
+            } else {
                 // Burger menu click [x: m_logicalWidth - 110 .. m_logicalWidth - 80]
                 if (x >= m_logicalWidth - 110 && x <= m_logicalWidth - 80) {
                     m_menuOpen = !m_menuOpen;
@@ -382,13 +394,12 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                     ToggleToolsCollapse();
                     return 0;
                 }
-            }
-
-            // Gear button click [x: m_logicalWidth - 40 .. m_logicalWidth - 10]
-            if (x >= m_logicalWidth - 40 && x <= m_logicalWidth - 10) {
-                m_settingsOpen = !m_settingsOpen;
-                RecalculateLayout();
-                return 0;
+                // Gear button click [x: m_logicalWidth - 40 .. m_logicalWidth - 10]
+                if (x >= m_logicalWidth - 40 && x <= m_logicalWidth - 10) {
+                    m_settingsOpen = !m_settingsOpen;
+                    RecalculateLayout();
+                    return 0;
+                }
             }
 
             // Drag window
@@ -404,7 +415,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         }
 
         // Menu selection interaction
-        if (m_menuOpen) {
+        if (m_menuOpen && !SettingsManager::Instance().Get().clockOnlyMode) {
             if (x >= m_logicalWidth - 185 && x <= m_logicalWidth - 10) {
                 if (y >= 45 && y <= 78) AddTool(TOOL_STOPWATCH);
                 else if (y >= 78 && y <= 108) AddTool(TOOL_TIMER);
@@ -420,7 +431,7 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         }
 
         // Tool cards interaction
-        if (!m_toolsCollapsed) {
+        if (!m_toolsCollapsed && !SettingsManager::Instance().Get().clockOnlyMode) {
             int curY = 55;
             int colX = 0;
             RECT workArea;
@@ -486,10 +497,14 @@ LRESULT AppWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         int y = (int)(pt.y / scale);
 
         bool isHovering = false;
-        if (y <= 50 && x >= m_logicalWidth - 110 && x <= m_logicalWidth - 10) isHovering = true;
-        if (m_menuOpen && x >= m_logicalWidth - 185 && x <= m_logicalWidth - 10 && y >= 50 && y <= 195) isHovering = true;
+        if (SettingsManager::Instance().Get().clockOnlyMode) {
+            if (y <= 50 && x >= m_logicalWidth - 70 && x <= m_logicalWidth - 8) isHovering = true;
+        } else {
+            if (y <= 50 && x >= m_logicalWidth - 110 && x <= m_logicalWidth - 10) isHovering = true;
+            if (m_menuOpen && x >= m_logicalWidth - 185 && x <= m_logicalWidth - 10 && y >= 50 && y <= 195) isHovering = true;
+        }
         if (m_settingsOpen) isHovering = true;
-        if (!m_toolsCollapsed) {
+        if (!m_toolsCollapsed && !SettingsManager::Instance().Get().clockOnlyMode) {
             int curY = 55;
             for (auto& tool : m_tools) {
                 int cardH = tool->GetHeight();
